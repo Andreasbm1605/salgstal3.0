@@ -42,10 +42,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function initializeConverter() {
         if (converterInitialized) return;
         
-        const dataContent = document.getElementById('data-content');
-        if (!dataContent) return;
-        
         converterInitialized = true;
+        console.log('Converter page initialized');
         
         // Hide directory section (default behavior)
         const dirSection = document.getElementById('directory-section');
@@ -129,6 +127,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 downloadBtn.textContent = "Data Gemt ✓";
                 downloadBtn.classList.remove('bg-slate-400');
                 downloadBtn.classList.add('bg-slate-500', 'cursor-default');
+
+                // Clear DataLoader cache so dashboard reloads fresh data
+                if (window.DataLoader) {
+                    window.DataLoader.clearCache();
+                }
+
+                // Reload data if on dashboard
                 if(window.loadData) window.loadData();
             } else {
                 throw new Error("Server fejl: " + response.status);
@@ -519,12 +524,6 @@ document.addEventListener('DOMContentLoaded', function() {
         showMasterError(msg);
     }
 
-    // Auto-init logic
-    checkAndInitializeConverter();
-    function checkAndInitializeConverter() {
-        const content = document.getElementById('data-content');
-        if (content && !content.classList.contains('hidden')) setTimeout(initializeConverter, 100);
-    }
-    document.addEventListener('dataTabShown', () => setTimeout(initializeConverter, 100));
-    document.getElementById('nav-data')?.addEventListener('click', () => setTimeout(checkAndInitializeConverter, 200));
+    // Initialize immediately
+    initializeConverter();
 });

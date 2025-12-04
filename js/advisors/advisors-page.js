@@ -12,202 +12,68 @@ document.addEventListener('DOMContentLoaded', function() {
     let selectedAdvisorProductMonth = 'all'; // Month filter for advisor product table
     let selectedAdvisorCustomerYear = 2025; // Year filter for customer statistics
     
+    // Use shared utilities from SalgstalUtils
+    const getSalesDate = SalgstalUtils.getSalesDate;
+    const formatCurrency = SalgstalUtils.formatCurrency;
+    const getMonthYear = SalgstalUtils.getMonthYear;
+    const parseDate = SalgstalUtils.parseDate;
+    const mapSagsbehandlerToInitials = SalgstalUtils.mapSagsbehandlerToInitials;
+    const filterMigratedSales = SalgstalUtils.filterMigratedSales;
+    const mapProductName = SalgstalUtils.mapProductName;
+
+    // Image path helper for advisor profiles
     function getImagePath(advisorId) {
-            const mapping = {
-                'flfa_lb': 'FLFA',
-                'jlar_lb': 'JLAR', 
-                'rovi_lb': 'ROVI',
-                'naas_lb': 'NAAS',
-                'mapk_lb': 'MAPK',
-                'kevfit': 'KEVF',
-                'adrb': 'ADRB'
-            };
-            const fileName = mapping[advisorId] || advisorId.toUpperCase();
-            return `Profilbilleder/${fileName}.jpg`;
+        const mapping = {
+            'flfa_lb': 'FLFA',
+            'jlar_lb': 'JLAR',
+            'rovi_lb': 'ROVI',
+            'naas_lb': 'NAAS',
+            'mapk_lb': 'MAPK',
+            'kevfit': 'KEVF',
+            'adrb': 'ADRB'
+        };
+        const fileName = mapping[advisorId] || advisorId.toUpperCase();
+        return `../assets/images/Profilbilleder/${fileName}.jpg`;
     }
 
-    // Funktion til at generere initialer
+    // Generate initials from name
     function getInitials(name) {
         return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase();
     }
 
-    // Format number as Danish currency
-    function formatCurrency(value) {
-        return new Intl.NumberFormat('da-DK', {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(value) + ' kr.';
-    }
-
-    // Get sales date function (same logic as dashboard)
-    function getSalesDate(item) {
-        if (item.PRODUKT === 'Arbejdsskadeforsikring') {
-            return item.TILBUD_START_DATO;
-        }
-        
-        // For konverterede data: brug KONVERTERINGS_DATO
-        if (item.KONVERTERINGS_DATO && item.KONVERTERINGS_DATO.trim() !== '') {
-            return item.KONVERTERINGS_DATO;
-        }
-        
-        // For ikke-konverterede og afviste: brug TILBUD_START_DATO eller andre mulige felter
-        if (item.TILBUD_START_DATO && item.TILBUD_START_DATO.trim() !== '') {
-            return item.TILBUD_START_DATO;
-        }
-        
-        if (item.TILBUDS_DATO && item.TILBUDS_DATO.trim() !== '') {
-            return item.TILBUDS_DATO;
-        }
-        
-        if (item.TILBUD_DATO && item.TILBUD_DATO.trim() !== '') {
-            return item.TILBUD_DATO;
-        }
-        
-        return null;
-    }
-
-    // Parse date string to Date object
-    function parseDate(dateString) {
-        if (!dateString || dateString.trim() === '') return null;
-
-        let date;
-
-        // Handle ISO timestamp format (2024-04-10T10:28:48.192Z)
-        if (dateString.includes('T')) {
-            date = new Date(dateString);
-        }
-        // Handle period format (2024.03.01)
-        else if (dateString.includes('.')) {
-            const normalizedDate = dateString.replace(/\./g, '-');
-            date = new Date(normalizedDate);
-        }
-        // Handle standard format (2024-04-10)
-        else {
-            date = new Date(dateString);
-        }
-
-        // Check if date is valid
-        if (isNaN(date.getTime())) {
-            return null;
-        }
-
-        return date;
-    }
-
-    // Get month and year for grouping (copied from dashboard.js)
-    function getMonthYear(dateString) {
-        // Return null if dateString is empty, null, or undefined
-        if (!dateString || dateString.trim() === '') {
-            return null;
-        }
-
-        let date;
-
-        // Handle ISO timestamp format (2024-04-10T10:28:48.192Z)
-        if (dateString.includes('T')) {
-            date = new Date(dateString);
-        }
-        // Handle period format (2024.03.01)
-        else if (dateString.includes('.')) {
-            const normalizedDate = dateString.replace(/\./g, '-');
-            date = new Date(normalizedDate);
-        }
-        // Handle standard format (2024-04-10)
-        else {
-            date = new Date(dateString);
-        }
-
-        // Check if date is valid
-        if (isNaN(date.getTime())) {
-            console.warn('Invalid date:', dateString);
-            return null;
-        }
-
-        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-    }
-
-
-    // Filter migrated sales (same logic as dashboard)
-    function filterMigratedSales(dataArray) {
-        // Check if exclude migrated sales checkbox is checked
-        const excludeCheckbox = document.getElementById('exclude-migrated-checkbox');
-        const excludeMigrated = excludeCheckbox ? excludeCheckbox.checked : true;
-        
-        if (!excludeMigrated) return dataArray;
-        
-        return dataArray.filter(item => {
-            // Always include Nærsikring data (no migrated sales in Nærsikring)
-            if (item.MASTER_POLICE_NAVN && item.MASTER_POLICE_NAVN.startsWith("Nærsikring")) {
-                return true;
-            }
-            
-            // For HDI and AXA: exclude items with "MIG PROD" in MASTER_POLICE_NAVN
-            return !item.MASTER_POLICE_NAVN || !item.MASTER_POLICE_NAVN.includes("MIG PROD");
-        });
-    }
-
-    // Map sagsbehandler to advisor ID (same logic as dashboard)
-    function mapSagsbehandlerToInitials(sagsbehandler) {
-        if (!sagsbehandler) return '';
-        
-        const allowedHandlers = ['flfa_lb', 'jlar_lb', 'rovi_lb', 'naas_lb', 'mapk_lb', 'kevfit', 'adrb'];
-        
-        // Direct match for initials (regular AXA/HDI data)
-        if (allowedHandlers.includes(sagsbehandler)) {
-            return sagsbehandler;
-        }
-        
-        // Mapping for Nærsikring full names with numbers
-        const nameMapping = {
-            'Flemming Falkengaard': 'flfa_lb',
-            'Jakob Nymand Larsen': 'jlar_lb', 
-            'Kevin Fitzgerald': 'kevfit',
-            'Maria Påskesen': 'mapk_lb',
-            'Nils Aaskilde': 'naas_lb',
-            'Ronja Støterau Vikjær': 'rovi_lb',
-            'Andreas Dræby': 'adrb'
-        };
-        
-        // Check if the sagsbehandler string contains any of the full names
-        for (const [fullName, initials] of Object.entries(nameMapping)) {
-            if (sagsbehandler.includes(fullName)) {
-                return initials;
-            }
-        }
-        
-        // If no match found, return original
-        return sagsbehandler;
-    }
 
 
 
 
-
-    // Initialize advisors when advisors tab is shown
-    function initializeAdvisors() {
+    // Initialize advisors page
+    async function initializeAdvisors() {
         if (advisorsInitialized) return;
-        
-        // Check if essential elements exist before initializing
-        const advisorsContent = document.getElementById('advisors-content');
-        
-        if (!advisorsContent) {
-            console.log('Advisors content not yet available, skipping initialization');
-            return;
-        }
-        
+
         advisorsInitialized = true;
-        
-        console.log('Advisors tab initialized');
-        
-        // Load auth data and set up event listeners
-        loadAuthData();
-        setupEventListeners();
+
+        console.log('Advisors page initialized');
+
+        try {
+            // Load sales data
+            console.log('Loading sales data...');
+            await DataLoader.loadAll();
+            console.log('Sales data loaded');
+            
+            // Load auth data and set up event listeners
+            await loadAuthData();
+            setupEventListeners();
+        } catch (error) {
+            console.error('Error initializing advisors page:', error);
+        }
     }
+
+    // Initialize immediately on page load
+    initializeAdvisors();
     
     // Load authentication data from JSON file
     async function loadAuthData() {
         try {
-            const response = await fetch('advisors_auth.json');
+            const response = await fetch('../data/advisors_auth_json_file.json');
             if (!response.ok) {
                 throw new Error('Could not load advisors auth data');
             }
@@ -541,39 +407,8 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Advisors tab reset');
     }
     
-    // Function to check and initialize advisors when advisors tab becomes visible
-    function checkAndInitializeAdvisors() {
-        const advisorsContent = document.getElementById('advisors-content');
-        if (advisorsContent && !advisorsContent.classList.contains('hidden')) {
-            // Small delay to ensure all elements are ready
-            setTimeout(() => {
-                initializeAdvisors();
-            }, 100);
-        }
-    }
-    
-    // Listen for tab changes
-    const navAdvisorsElement = document.getElementById('nav-advisors');
-    if (navAdvisorsElement) {
-        navAdvisorsElement.addEventListener('click', () => {
-            setTimeout(checkAndInitializeAdvisors, 200);
-        });
-    }
-    
-    // Reset when leaving advisors tab (optional - remove if you want to persist login)
-    const otherNavElements = ['nav-dashboard', 'nav-data'];
-    otherNavElements.forEach(navId => {
-        const navElement = document.getElementById(navId);
-        if (navElement) {
-            navElement.addEventListener('click', () => {
-                // Uncomment if you want to reset login when switching tabs
-                // resetAdvisorsTab();
-            });
-        }
-    });
-    
-    // Also check immediately if advisors tab is already visible
-    checkAndInitializeAdvisors();
+    // OLD TAB-BASED CODE - No longer needed for standalone page
+    // Initialization now happens automatically on DOMContentLoaded above
     
     // Initialize advisor company filters for chart
     function initializeAdvisorChartCompanyFilters() {
@@ -1061,9 +896,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Apply migrated sales filter (using function from dashboard.js)
-        const salesDataNoMigrated = window.dashboardFunctions.filterMigratedSales(salesData2025);
-        const nonConvertedDataNoMigrated = window.dashboardFunctions.filterMigratedSales(nonConvertedData2025);
-        const afvisteDataNoMigrated = window.dashboardFunctions.filterMigratedSales(afvisteData2025);
+        const salesDataNoMigrated = filterMigratedSales(salesData2025);
+        const nonConvertedDataNoMigrated = filterMigratedSales(nonConvertedData2025);
+        const afvisteDataNoMigrated = filterMigratedSales(afvisteData2025);
 
         console.log('After migrated filter:', {
             converted: salesDataNoMigrated.length,
@@ -1120,7 +955,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Count converted
         filteredSales.forEach(item => {
-            const product = window.dashboardFunctions.mapProductName(item.MASTER_POLICE_NAVN);
+            const product = mapProductName(item.MASTER_POLICE_NAVN);
             if (!productStats[product]) {
                 productStats[product] = {
                     converted: 0,
@@ -1145,7 +980,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Count non-converted
         filteredNonConverted.forEach(item => {
-            const product = window.dashboardFunctions.mapProductName(item.MASTER_POLICE_NAVN);
+            const product = mapProductName(item.MASTER_POLICE_NAVN);
             if (!productStats[product]) {
                 productStats[product] = {
                     converted: 0,
@@ -1160,7 +995,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Count rejected
         filteredAfviste.forEach(item => {
-            const product = window.dashboardFunctions.mapProductName(item.MASTER_POLICE_NAVN);
+            const product = mapProductName(item.MASTER_POLICE_NAVN);
             if (!productStats[product]) {
                 productStats[product] = {
                     converted: 0,

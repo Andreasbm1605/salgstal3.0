@@ -21,259 +21,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const avgMonthlySalesElement = document.getElementById('avg-monthly-sales');
     const projectedFulfillmentElement = document.getElementById('projected-fulfillment');
     
-    // Navigation
-    const navItems = {
-        'nav-dashboard': 'dashboard-content',
-        'nav-advisors': 'advisors-content',
-        'nav-data': 'data-content'
-    };
+    // Navigation handled by shared/navigation.js
+    
+    // Use shared utilities from SalgstalUtils
+    const getSalesDate = SalgstalUtils.getSalesDate;
+    const formatCurrency = SalgstalUtils.formatCurrency;
+    const getMonthYear = SalgstalUtils.getMonthYear;
+    const formatDateForFilename = SalgstalUtils.formatDateForFilename;
+    const mapSagsbehandlerToInitials = SalgstalUtils.mapSagsbehandlerToInitials;
 
-    function showTab(contentId, navId) {
-        // Hide all tab content
-        document.querySelectorAll('.tab-content').forEach(tab => {
-            tab.classList.add('hidden');
-        });
-        
-        // Show selected tab content
-        const selectedContent = document.getElementById(contentId);
-        if (selectedContent) {
-            selectedContent.classList.remove('hidden');
-        }
-        
-        // Update navigation styles - remove active classes from all nav items
-        Object.keys(navItems).forEach(id => {
-            const navElement = document.getElementById(id);
-            if (navElement) {
-                navElement.classList.remove('text-slate-900');
-                navElement.classList.add('text-slate-500');
-            }
-        });
-        
-        // Add active class to selected nav item
-        const selectedNav = document.getElementById(navId);
-        if (selectedNav) {
-            selectedNav.classList.remove('text-slate-500');
-            selectedNav.classList.add('text-slate-900');
-        }
-        
-        // Special handling for data tab - initialize converter when shown
-        if (contentId === 'data-content') {
-            // Trigger converter initialization
-            const event = new Event('dataTabShown');
-            document.dispatchEvent(event);
-        }
-    }
-    
-    // Initialize navigation
-    Object.keys(navItems).forEach(navId => {
-        document.getElementById(navId).addEventListener('click', (e) => {
-            e.preventDefault();
-            showTab(navItems[navId], navId);
-        });
-    });
-    
-    function getSalesDate(item) {
-        console.log("getSalesDate called with item:", {
-            PRODUKT: item.PRODUKT,
-            TILBUD_START_DATO: item.TILBUD_START_DATO,
-            KONVERTERINGS_DATO: item.KONVERTERINGS_DATO,
-            TILBUDS_DATO: item.TILBUDS_DATO,
-            TILBUD_DATO: item.TILBUD_DATO
-        });
-        
-        if (item.PRODUKT === 'Arbejdsskadeforsikring') {
-            return item.TILBUD_START_DATO;
-        }
-        
-        // For konverterede data: brug KONVERTERINGS_DATO
-        if (item.KONVERTERINGS_DATO && item.KONVERTERINGS_DATO.trim() !== '') {
-            return item.KONVERTERINGS_DATO;
-        }
-        
-        // For ikke-konverterede og afviste: brug TILBUD_START_DATO eller andre mulige felter
-        if (item.TILBUD_START_DATO && item.TILBUD_START_DATO.trim() !== '') {
-            return item.TILBUD_START_DATO;
-        }
-        
-        // Andre mulige felter for tilbudsdatoer
-        if (item.TILBUDS_DATO && item.TILBUDS_DATO.trim() !== '') {
-            return item.TILBUDS_DATO;
-        }
-        
-        if (item.TILBUD_DATO && item.TILBUD_DATO.trim() !== '') {
-            return item.TILBUD_DATO;
-        }
-        
-        console.warn("No valid date found for item:", item);
-        return null;
-    }
-    
-    // Format number as Danish currency
-    function formatCurrency(value) {
-        window.dashboardFunctions.formatCurrency = formatCurrency;
-        return new Intl.NumberFormat('da-DK', {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(value) + ' kr.';
-    }
-
-    // Filter out migrated sales (MIG PROD) - only applies to HDI and AXA
+    // Filter function that respects the excludeMigratedSales setting
     function filterMigratedSales(dataArray) {
-        window.dashboardFunctions.filterMigratedSales = filterMigratedSales;
-        if (!excludeMigratedSales) return dataArray;
-        
-        return dataArray.filter(item => {
-            // Always include Nærsikring data (no migrated sales in Nærsikring)
-            if (item.MASTER_POLICE_NAVN && item.MASTER_POLICE_NAVN.startsWith("Nærsikring")) {
-                return true;
-            }
-            
-            // For HDI and AXA: exclude items with "MIG PROD" in MASTER_POLICE_NAVN
-            return !item.MASTER_POLICE_NAVN || !item.MASTER_POLICE_NAVN.includes("MIG PROD");
-        });
+        return SalgstalUtils.filterMigratedSales(dataArray, excludeMigratedSales);
     }
     
-    // Get month and year for grouping
-    function getMonthYear(dateString) {
-        // Return null if dateString is empty, null, or undefined
-        if (!dateString || dateString.trim() === '') {
-            return null;
-        }
-        
-        let date;
-        
-        // Handle ISO timestamp format (2024-04-10T10:28:48.192Z)
-        if (dateString.includes('T')) {
-            date = new Date(dateString);
-        } 
-        // Handle period format (2024.03.01)
-        else if (dateString.includes('.')) {
-            const normalizedDate = dateString.replace(/\./g, '-');
-            date = new Date(normalizedDate);
-        }
-        // Handle standard format (2024-04-10)
-        else {
-            date = new Date(dateString);
-        }
-        
-        // Check if date is valid
-        if (isNaN(date.getTime())) {
-            console.warn('Invalid date:', dateString);
-            return null;
-        }
-        
-        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-    }
-    
-    // Generate a date string in the format DDMMYYYY for a given date
-    function formatDateForFilename(date) {
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}${month}${year}`;
-    }
-    
-    async function loadSalesGoals() {
-        try {
-            return new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = 'sales_goals.js';
-                
-                script.onload = function() {
-                    if (typeof sales_goals_data !== 'undefined') {
-                        salesGoals = sales_goals_data;
-                        console.log('Sales goals loaded from JS file:', salesGoals);
-                        resolve();
-                    } else {
-                        console.error(`sales_goals_data variable not found in sales_goals.js`);
-                        loadFallbackGoals();
-                        resolve();
-                    }
-                };
-                
-                script.onerror = function() {
-                    console.warn('Failed to load sales_goals.js, using fallback data');
-                    loadFallbackGoals();
-                    resolve();
-                };
-                
-                document.body.appendChild(script);
-            });
-        } catch (error) {
-            console.error('Error loading sales goals:', error);
-            loadFallbackGoals();
-        }
-    }
-
-    function loadFallbackGoals() {
-        salesGoals = {
-            "all": {},
-            "hdi": {},
-            "axa": {}
-        };
-        
-        const currentYear = new Date().getFullYear();
-        const months = [];
-        for (let month = 1; month <= 12; month++) {
-            months.push(`${currentYear}-${String(month).padStart(2, '0')}`);
-        }
-        
-        months.forEach((month, index) => {
-            const baseValue = 500000 + (index * 50000);
-            salesGoals.hdi[month] = Math.round(baseValue * 0.6);
-            salesGoals.axa[month] = Math.round(baseValue * 0.4);
-            // Change this line to combine HDI + AXA instead of using baseValue
-            salesGoals.all[month] = salesGoals.hdi[month] + salesGoals.axa[month];
-        });
-        
-        console.log('Using fallback sales goals data');
-    }
-    
-    function tryLoadDataFile(dateStr, onSuccess, onError, remainingAttempts) {
-        const filename = `konverterede_accepterede_tilbud_${dateStr}.js`;
-        const script = document.createElement('script');
-        script.src = filename;
-        
-        script.onload = function() {
-            if (typeof data !== 'undefined') {
-                const loadedData = typeof data !== 'undefined' ? data : [];
-                const loadedNonConverted = typeof nonConvertedData !== 'undefined' ? nonConvertedData : [];
-                const loadedAfviste = typeof afvisteData !== 'undefined' ? afvisteData : [];
-                
-                console.log('Loaded datasets:', {
-                    converted: loadedData.length,
-                    nonConverted: loadedNonConverted.length,
-                    rejected: loadedAfviste.length
-                });
-                
-                onSuccess(loadedData, loadedNonConverted, loadedAfviste, filename);
-            } else {
-                console.error(`Data variable not found in ${filename}`);
-                if (remainingAttempts > 0) {
-                    const baseDate = new Date();
-                    baseDate.setDate(baseDate.getDate() - (30 - remainingAttempts + 1));
-                    const prevDateStr = formatDateForFilename(baseDate);
-                    tryLoadDataFile(prevDateStr, onSuccess, onError, remainingAttempts - 1);
-                } else {
-                    onError("No valid data files found with 'data' variable.");
-                }
-            }
-        };
-        
-        script.onerror = function() {
-            console.warn(`Failed to load ${filename}`);
-            if (remainingAttempts > 0) {
-                const baseDate = new Date();
-                baseDate.setDate(baseDate.getDate() - (30 - remainingAttempts + 1));
-                const prevDateStr = formatDateForFilename(baseDate);
-                tryLoadDataFile(prevDateStr, onSuccess, onError, remainingAttempts - 1);
-            } else {
-                onError(`No data files found after trying 30 days.`);
-            }
-        };
-        
-        document.body.appendChild(script);
-    }
+    // Sales goals and data loading handled by DataLoader
 
     function updateNaersikringInfoText() {
         const infoText = document.getElementById('naersikring-info-text');
@@ -285,89 +47,48 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function mapSagsbehandlerToInitials(sagsbehandler) {
-        if (!sagsbehandler) return '';
-        
-        // Direct match for initials (regular AXA/HDI data)
-        if (allowedHandlers.includes(sagsbehandler)) {
-            return sagsbehandler;
-        }
-        
-        // Mapping for Nærsikring full names with numbers
-        const nameMapping = {
-            'Flemming Falkengaard': 'flfa_lb',
-            'Jakob Nymand Larsen': 'jlar_lb', 
-            'Kevin Fitzgerald': 'kevfit',
-            'Maria Påskesen': 'mapk_lb',
-            'Nils Aaskilde': 'naas_lb',
-            'Ronja Støterau Vikjær': 'rovi_lb',
-            'Andreas Dræby': 'adrb'
-        };
-        
-        // Check if the sagsbehandler string contains any of the full names
-        for (const [fullName, initials] of Object.entries(nameMapping)) {
-            if (sagsbehandler.includes(fullName)) {
-                return initials;
-            }
-        }
-        
-        // If no match found, return original
-        return sagsbehandler;
-    }
+    // mapSagsbehandlerToInitials is now imported from SalgstalUtils
     
-    // Rettet loadData funktion
+    // Load data using DataLoader
     async function loadData() {
         const dataSourceInfo = document.getElementById('data-source-info');
         dataSourceInfo.textContent = "Henter data fra database...";
 
         try {
-            // VIGTIG RETTELSE: Vi skal sikre at salgsmålene er indlæst før vi tegner grafer
-            if (typeof loadSalesGoals === 'function') {
-                await loadSalesGoals();
-            }
+            // Use DataLoader to load all data and sales goals
+            const result = await DataLoader.loadAll();
 
-            // Hent data fra serveren
-            const response = await fetch('/api/data');
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            // Store in local variables and global window
+            window.data = result.data;
+            window.nonConvertedData = result.nonConvertedData;
+            window.afvisteData = result.afvisteData;
+            salesGoals = result.salesGoals;
 
-            const db = await response.json();
-            
-            // Fordel data til de variabler systemet kender
-            window.data = db.converted || [];
-            window.nonConvertedData = db.nonConverted || [];
-            window.afvisteData = db.rejected || [];
-
-            // Opdater info tekst
-            const totalCount = window.data.length + window.nonConvertedData.length + window.afvisteData.length;
-            
+            // Update info text
             let statusText = ``;
-            
+
             // Check for last updated timestamp
-            if (db.metadata && db.metadata.lastUpdated) {
-                const lastUpdated = new Date(db.metadata.lastUpdated);
-                const options = { 
-                    day: 'numeric', 
-                    month: 'long', 
-                    year: 'numeric', 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
+            if (result.metadata && result.metadata.lastUpdated) {
+                const lastUpdated = new Date(result.metadata.lastUpdated);
+                const options = {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
                 };
                 const formattedDate = lastUpdated.toLocaleDateString('da-DK', options);
                 statusText += ` — Opdateret: ${formattedDate}`;
             }
-            
+
             dataSourceInfo.textContent = statusText;
             dataSourceInfo.classList.remove('text-red-600');
-            
-            // Start systemet
+
+            // Initialize dashboard
             initializeDashboard();
 
         } catch (error) {
             console.error("Javascript fejl under opstart:", error);
-            // Vis den faktiske fejl i browseren i stedet for bare "Kunne ikke forbinde"
             dataSourceInfo.textContent = `FEJL: ${error.message}`;
             dataSourceInfo.classList.add('text-red-600');
         }

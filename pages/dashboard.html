@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Salgstal 3.1</title>
+
+    <!-- Dollar Sign Favicon -->
+    <link rel="icon" type="image/svg+xml" href="https://icons.iconarchive.com/icons/papirus-team/papirus-apps/128/money-manager-ex-icon.png" width="128" height="128">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
+    />
+    <style>
+        body {
+            font-family: Inter, "Noto Sans", sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="relative flex size-full min-h-screen flex-col bg-gray-100">
+        <div class="layout-container flex h-full grow flex-col bg-gray-100">
+            <!-- Header -->
+            <header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-slate-200 px-10 py-3">
+                <div class="flex items-center gap-4 text-slate-900">
+                    <div class="h-8 w-auto">
+                        <img src="../assets/images/LBERHVERV LOGO.png" alt="LB Erhverv Logo" class="h-full w-auto object-contain">
+                    </div>
+                    <h2 class="text-slate-900 text-lg font-bold leading-tight tracking-[-0.015em]">Salgsrapport</h2>
+                </div>
+                <div class="flex flex-1 justify-end gap-8">
+                    <div class="flex items-center gap-9">
+                        <a class="nav-link text-sm font-medium leading-normal cursor-pointer" href="dashboard.html" data-page="dashboard">Dashboard</a>
+                        <a class="nav-link text-sm font-medium leading-normal cursor-pointer" href="advisors.html" data-page="advisors">Rådgivere</a>
+                        <a class="nav-link text-sm font-medium leading-normal cursor-pointer" href="data.html" data-page="data">Data</a>
+                    </div>
+                    <div id="admin-icon" class="size-10">
+                        <img src="../assets/images/profilelb.png" alt="Profile" class="w-full h-full">
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <div class="px-40 flex flex-1 justify-center py-5 bg-gray-100">
+                <div class="layout-content-container flex flex-col max-w-6xl flex-1">
+
+                    <!-- Page Header -->
+                    <div class="flex flex-wrap justify-between gap-3 p-4">
+                        <div class="flex min-w-72 flex-col gap-3">
+                            <p class="text-slate-900 tracking-light text-[32px] font-bold leading-tight">Salgsoverblik</p>
+                            <p class="text-slate-600 text-sm font-normal leading-normal" id="data-source-info">Indlæser data...</p>
+                        </div>
+                    </div>
+
+                    <!-- Migrated Sales Toggle Section -->
+                    <div class="flex flex-wrap gap-4 px-4 py-3">
+                        <div class="flex min-w-full flex-1 justify-center">
+                            <div class="flex items-center gap-3 bg-slate-50 rounded-lg px-4 py-3 border border-slate-200">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="exclude-migrated-checkbox" checked class="w-4 h-4 text-slate-600 border-slate-300 rounded focus:ring-slate-500">
+                                    <span class="text-sm font-medium text-slate-700">Ekskluder migrerede salg</span>
+                                </label>
+                                <div class="relative group">
+                                    <svg class="w-4 h-4 text-slate-400 cursor-help" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <!-- Tooltip -->
+                                    <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+                                        Migrerede salg er produkter med "MIG PROD" i navnet
+                                        <div class="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Goal Comparison Section -->
+                    <div class="flex flex-wrap gap-4 px-4 py-6">
+                        <div class="flex min-w-full flex-1 flex-col gap-6 rounded-lg border border-slate-200 p-6 bg-white">
+                            <div class="flex flex-col gap-4">
+                                <p class="text-slate-900 text-xl font-bold leading-normal">Salg vs. Mål</p>
+
+                                <!-- Company Filter Buttons -->
+                                <div id="company-filter-buttons" class="flex justify-center gap-3">
+                                    <button class="company-filter-btn px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-company="hdi-axa">
+                                        HDI+AXA
+                                    </button>
+                                    <button class="company-filter-btn px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-company="hdi">
+                                        HDI
+                                    </button>
+                                    <button class="company-filter-btn px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-company="axa">
+                                        AXA
+                                    </button>
+                                    <button class="company-filter-btn px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-company="nærsikring">
+                                        Nærsikring
+                                    </button>
+                                    <button class="company-filter-btn px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-company="alle">
+                                        Alle
+                                    </button>
+                                </div>
+                                <!-- Nærsikring info text -->
+                                <div id="naersikring-info-text" class="hidden mt-3 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <div class="flex items-start gap-2">
+                                        <svg class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <p class="text-blue-800 text-sm">
+                                            <strong>Bemærk:</strong> For Nærsikring måles pr. ikrafttrædelsesdatoer (ikke salgsdatoer).
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Chart Container -->
+                            <div class="relative h-80">
+                                <canvas id="goal-chart"></canvas>
+                            </div>
+
+                            <!-- Custom Legend -->
+                            <div class="flex justify-center gap-8 mt-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-3 rounded-sm" id="legend-sales-color"></div>
+                                    <span class="text-sm text-slate-700">Faktiske Salg</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-3 rounded-sm" id="legend-goals-color"></div>
+                                    <span class="text-sm text-slate-700">Salgsmål</span>
+                                </div>
+                            </div>
+
+                            <!-- Summary Metrics -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+                                <div class="flex flex-col gap-2 rounded-lg p-4 bg-slate-50">
+                                    <p class="text-slate-700 text-sm font-medium leading-normal">Samlede salg til dato</p>
+                                    <p class="text-slate-900 tracking-light text-xl font-bold leading-tight" id="total-sales-ytd">-</p>
+                                </div>
+                                <div class="flex flex-col gap-2 rounded-lg p-4 bg-slate-50">
+                                    <p class="text-slate-700 text-sm font-medium leading-normal">Opfyldelse af mål til dato</p>
+                                    <p class="text-slate-900 tracking-light text-xl font-bold leading-tight" id="total-goal-fulfillment">-</p>
+                                </div>
+                                <div class="flex flex-col gap-2 rounded-lg p-4 bg-slate-50">
+                                    <p class="text-slate-700 text-sm font-medium leading-normal">Gns. månedlige salg</p>
+                                    <p class="text-slate-900 tracking-light text-xl font-bold leading-tight" id="avg-monthly-sales">-</p>
+                                </div>
+                                <div class="flex flex-col gap-2 rounded-lg p-4 bg-slate-50">
+                                    <p class="text-slate-700 text-sm font-medium leading-normal">Opfyldelse af årligt mål</p>
+                                    <p class="text-slate-900 tracking-light text-xl font-bold leading-tight" id="projected-fulfillment">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Product Performance Table Section -->
+                    <div class="flex flex-wrap gap-4 px-4 py-6">
+                        <div class="flex min-w-full flex-1 flex-col gap-6 rounded-lg border border-slate-200 p-6 bg-white">
+                            <div class="flex flex-col gap-4">
+                                <p class="text-slate-900 text-xl font-bold leading-normal">Produktoversigt</p>
+
+                                <!-- Month Filter Buttons -->
+                                <div id="month-filter-buttons" class="flex flex-wrap justify-center gap-2">
+                                    <button class="month-filter-btn px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-month="all">
+                                        Hele 2025
+                                    </button>
+                                    <button class="month-filter-btn px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-month="01">
+                                        Jan
+                                    </button>
+                                    <button class="month-filter-btn px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-month="02">
+                                        Feb
+                                    </button>
+                                    <button class="month-filter-btn px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-month="03">
+                                        Mar
+                                    </button>
+                                    <button class="month-filter-btn px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-month="04">
+                                        Apr
+                                    </button>
+                                    <button class="month-filter-btn px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-month="05">
+                                        Maj
+                                    </button>
+                                    <button class="month-filter-btn px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-month="06">
+                                        Jun
+                                    </button>
+                                    <button class="month-filter-btn px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-month="07">
+                                        Jul
+                                    </button>
+                                    <button class="month-filter-btn px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-month="08">
+                                        Aug
+                                    </button>
+                                    <button class="month-filter-btn px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-month="09">
+                                        Sep
+                                    </button>
+                                    <button class="month-filter-btn px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-month="10">
+                                        Okt
+                                    </button>
+                                    <button class="month-filter-btn px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-month="11">
+                                        Nov
+                                    </button>
+                                    <button class="month-filter-btn px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-month="12">
+                                        Dec
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Product Table -->
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead>
+                                        <tr class="border-b border-slate-200">
+                                            <th class="text-left py-3 px-4 font-semibold text-slate-900">Produkt</th>
+                                            <th class="text-right py-3 px-4 font-semibold text-slate-900">Antal konverterede</th>
+                                            <th class="text-right py-3 px-4 font-semibold text-slate-900">Total præmie</th>
+                                            <th class="text-right py-3 px-4 font-semibold text-slate-900">Gennemsnits præmie</th>
+                                            <th class="text-right py-3 px-4 font-semibold text-slate-900">Hitrate</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="product-table-body">
+                                        <!-- Table rows will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advisor Performance Table Section -->
+                    <div class="flex flex-wrap gap-4 px-4 py-6">
+                        <div class="flex min-w-full flex-1 flex-col gap-6 rounded-lg border border-slate-200 p-6 bg-white">
+                            <div class="flex flex-col gap-4">
+                                <p class="text-slate-900 text-xl font-bold leading-normal">Salg pr. rådgiver</p>
+
+                                <!-- Company Filter Buttons for Advisor -->
+                                <div id="advisor-company-filter-buttons" class="flex justify-center gap-3">
+                                    <button class="advisor-company-filter-btn px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-company="hdi-axa">
+                                        HDI+AXA
+                                    </button>
+                                    <button class="advisor-company-filter-btn px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-company="hdi">
+                                        HDI
+                                    </button>
+                                    <button class="advisor-company-filter-btn px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-company="axa">
+                                        AXA
+                                    </button>
+                                    <button class="advisor-company-filter-btn px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-company="nærsikring">
+                                        Nærsikring
+                                    </button>
+                                    <button class="advisor-company-filter-btn px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-company="alle">
+                                        Alle
+                                    </button>
+                                </div>
+
+                                <!-- Year Filter Buttons -->
+                                <div id="year-filter-buttons" class="flex flex-wrap justify-center gap-2">
+                                    <button class="year-filter-btn px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-year="2025">
+                                        2025
+                                    </button>
+                                    <button class="year-filter-btn px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-year="2024">
+                                        2024
+                                    </button>
+                                    <button class="year-filter-btn px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 border" data-year="2023">
+                                        2023
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Advisor Performance Table -->
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead>
+                                        <tr class="border-b border-slate-200">
+                                            <th class="text-left py-3 px-2 font-semibold text-slate-900 whitespace-nowrap">Måned</th>
+                                            <th class="text-right py-3 px-2 font-semibold text-slate-900 whitespace-nowrap">Flemming F.</th>
+                                            <th class="text-right py-3 px-2 font-semibold text-slate-900 whitespace-nowrap">Jakob N. L.</th>
+                                            <th class="text-right py-3 px-2 font-semibold text-slate-900 whitespace-nowrap">Ronja S. V.</th>
+                                            <th class="text-right py-3 px-2 font-semibold text-slate-900 whitespace-nowrap">Nils A.</th>
+                                            <th class="text-right py-3 px-2 font-semibold text-slate-900 whitespace-nowrap">Maria P.</th>
+                                            <th class="text-right py-3 px-2 font-semibold text-slate-900 whitespace-nowrap">Kevin F.</th>
+                                            <th class="text-right py-3 px-2 font-semibold text-slate-900 whitespace-nowrap">Andreas D.</th>
+                                            <th class="text-right py-3 px-2 font-semibold text-slate-900 whitespace-nowrap">Andre</th>
+                                            <th class="text-right py-3 px-2 font-semibold text-slate-900 bg-slate-100 whitespace-nowrap">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="advisor-table-body">
+                                        <!-- Table rows will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Placeholder for Future Features -->
+                    <div class="px-4 pb-6">
+                        <div class="rounded-lg border border-dashed border-slate-300 p-8 text-center">
+                            <p class="text-slate-500 text-sm">Mere indhold kommer snart...</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden message for when no data is found -->
+    <div id="no-data-message" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 max-w-md mx-4">
+            <h2 class="text-xl font-bold text-slate-900 mb-4">Ingen Data Fundet</h2>
+            <p class="text-slate-600 mb-4">Der blev ikke fundet nogen datafil. Sørg for at mindst én fil med navngivningsmønsteret 'konverterede_accepterede_tilbud_DDMMYYYY.js' findes i mappen.</p>
+            <button onclick="location.reload()" class="px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors">
+                Genindlæs
+            </button>
+        </div>
+    </div>
+
+    <!-- Shared JavaScript (loaded first) -->
+    <script src="../js/shared/utils.js"></script>
+    <script src="../js/shared/data-loader.js"></script>
+    <script src="../js/shared/navigation.js"></script>
+
+    <!-- Page-specific JavaScript -->
+    <script src="../js/dashboard/dashboard-page.js"></script>
+</body>
+</html>

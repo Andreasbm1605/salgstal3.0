@@ -1,7 +1,7 @@
 # --- KONFIGURATION ---
 $url = "http://localhost:8080/"
 $rootPath = $PSScriptRoot
-$dbFile = "$rootPath\database.json"
+$dbFile = "$rootPath\data\database.json"
 
 # --- CHECK FOR EXISTING INSTANCE ---
 # Try to start the listener immediately. 
@@ -159,7 +159,7 @@ $serverScript = {
             # --- FIL-SERVER ---
             else {
                 $filePath = $request.Url.LocalPath.TrimStart('/')
-                if ($filePath -eq "") { $filePath = "dashboard.html" }
+                if ($filePath -eq "") { $filePath = "index.html" }
                 $localPath = Join-Path $rootPath $filePath
 
                 if (Test-Path $localPath -PathType Leaf) {
