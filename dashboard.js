@@ -342,7 +342,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Opdater info tekst
             const totalCount = window.data.length + window.nonConvertedData.length + window.afvisteData.length;
-            dataSourceInfo.textContent = `Database forbundet. Poster i alt: ${totalCount}`;
+            
+            let statusText = ``;
+            
+            // Check for last updated timestamp
+            if (db.metadata && db.metadata.lastUpdated) {
+                const lastUpdated = new Date(db.metadata.lastUpdated);
+                const options = { 
+                    day: 'numeric', 
+                    month: 'long', 
+                    year: 'numeric', 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                };
+                const formattedDate = lastUpdated.toLocaleDateString('da-DK', options);
+                statusText += ` — Opdateret: ${formattedDate}`;
+            }
+            
+            dataSourceInfo.textContent = statusText;
             dataSourceInfo.classList.remove('text-red-600');
             
             // Start systemet

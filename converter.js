@@ -105,7 +105,13 @@ document.addEventListener('DOMContentLoaded', function() {
         downloadBtn.classList.add('bg-slate-400');
 
         try {
+            // Create metadata with current timestamp
+            const now = new Date();
+            // Adjust to Danish time zone if needed, or stick to ISO
             const fullDatabasePayload = {
+                metadata: {
+                    lastUpdated: now.toISOString()
+                },
                 converted: preparedDatabaseData.converted,
                 nonConverted: preparedDatabaseData.nonConverted,
                 rejected: preparedDatabaseData.rejected,
