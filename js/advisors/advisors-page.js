@@ -334,8 +334,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Show data section
-                if (dataSection && currentAdvisorDisplay) {
-                    currentAdvisorDisplay.textContent = `Viser data for: ${selectedAdvisor.name} (${selectedAdvisor.id})`;
+                if (dataSection) {
                     dataSection.classList.remove('hidden');
                 }
                 
