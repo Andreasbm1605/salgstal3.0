@@ -23,9 +23,10 @@ function setActiveNavLink() {
 }
 
 function getCurrentPage() {
-    const path = window.location.pathname;
+    const path = decodeURIComponent(window.location.pathname);
     if (path.includes('dashboard.html')) return 'dashboard';
     if (path.includes('advisors.html')) return 'advisors';
+    if (path.includes('tilbudsopfølgning.html')) return 'tilbudsopfølgning';
     if (path.includes('data.html')) return 'data';
     return 'dashboard'; // default
 }
