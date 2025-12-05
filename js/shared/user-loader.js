@@ -29,7 +29,7 @@ const UserLoader = (() => {
             return {
                 username: 'unknown',
                 displayName: 'Administrator',
-                profileImage: 'profilelb.png'
+                profileImage: 'Profilbilleder/empty.png'
             };
         }
     }
@@ -48,8 +48,15 @@ const UserLoader = (() => {
         }
 
         if (imageEl) {
-            imageEl.src = `../assets/images/${userInfo.profileImage}`;
+            const imagePath = `../assets/images/${userInfo.profileImage}`;
+            imageEl.src = imagePath;
             imageEl.alt = userInfo.displayName;
+
+            // Fallback to empty.png if image doesn't load
+            imageEl.onerror = function() {
+                this.onerror = null; // Prevent infinite loop
+                this.src = '../assets/images/Profilbilleder/empty.png';
+            };
         }
     }
 

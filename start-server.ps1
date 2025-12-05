@@ -109,11 +109,8 @@ $displayName = if ($currentUsername -eq "andre") {
 } else {
     "Administrator"
 }
-$profileImage = if ($currentUsername -eq "andre") {
-    "andre.png"
-} else {
-    "profilelb.png"
-}
+# Convert username to uppercase for image filename
+$profileImage = "Profilbilleder/$($currentUsername.ToUpper()).jpg"
 
 # Store user info for API access
 $userInfo = @{
