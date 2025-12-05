@@ -1,4 +1,4 @@
-# Salgstal 3.1 - Project Context for Gemini
+# Salgstal 3.1 - Project Context for Claude
 
 This document provides a comprehensive guide to the **Salgstal 3.1** project for AI assistants and developers. It outlines the architecture, key files, data flow, and development conventions.
 
@@ -31,7 +31,7 @@ Execute the following in the project root:
 ## 3. Architecture & File Structure
 
 ### **Root Directory**
-*   `start-server.ps1`: The HTTP server. Handles static file serving and `/api/data` endpoints.
+*   `start-server.ps1`: The HTTP server. Handles static file serving and API endpoints.
 *   `project-overview.md`: High-level documentation of business logic and data models.
 *   `index.html`: Simple redirect to `pages/dashboard.html`.
 

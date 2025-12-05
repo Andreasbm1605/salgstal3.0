@@ -1,0 +1,8 @@
+{
+  "allowed_users": [
+    "JMAD",
+    "ANMA",
+    "andre"
+  ],
+  "access_description": "List of Windows usernames allowed to access the advisors page"
+}

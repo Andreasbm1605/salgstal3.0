@@ -4,7 +4,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Only initialize if we're on the advisors tab
     let advisorsInitialized = false;
-    let advisorsLoggedIn = false;
+    let accessControlData = null;
+    let currentUser = null;
     let advisorsAuthData = null;
     let selectedAdvisor = null;
     let advisorSalesChart = null;
@@ -58,10 +59,18 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Loading sales data...');
             await DataLoader.loadAll();
             console.log('Sales data loaded');
-            
-            // Load auth data and set up event listeners
-            await loadAuthData();
-            setupEventListeners();
+
+            // Load both auth data (for advisor list) and access control
+            await Promise.all([
+                loadAuthData(),
+                loadAccessControl()
+            ]);
+
+            // Check user access and show appropriate UI
+            await checkUserAccess();
+
+            // Setup event listeners for advisor selection
+            setupAdvisorSelectionListeners();
         } catch (error) {
             console.error('Error initializing advisors page:', error);
         }
@@ -97,28 +106,58 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Using fallback auth data');
         }
     }
+
+    // Load access control data from JSON file
+    async function loadAccessControl() {
+        try {
+            const response = await fetch('../data/advisors_access.json');
+            if (!response.ok) {
+                throw new Error('Could not load access control data');
+            }
+            accessControlData = await response.json();
+            console.log('Access control data loaded:', accessControlData);
+        } catch (error) {
+            console.error('Error loading access control data:', error);
+            // Fallback: deny all access if file not found
+            accessControlData = { allowed_users: [] };
+        }
+    }
+
+    // Check if current user has access to advisors page
+    async function checkUserAccess() {
+        try {
+            // Load current user from server
+            currentUser = await UserLoader.loadUserInfo();
+            console.log('Current user:', currentUser.username);
+
+            // Check if user is in allowed list
+            const hasAccess = accessControlData.allowed_users.includes(currentUser.username);
+            console.log('User has access:', hasAccess);
+
+            if (hasAccess) {
+                // Show advisor selection
+                document.getElementById('advisor-selection-section').classList.remove('hidden');
+                populateAdvisorDropdown();
+            } else {
+                // Show access denied
+                document.getElementById('advisor-access-denied-section').classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error('Error checking user access:', error);
+            // On error, deny access
+            document.getElementById('advisor-access-denied-section').classList.remove('hidden');
+        }
+    }
     
-    // Set up event listeners
-    function setupEventListeners() {
-        const passwordInput = document.getElementById('advisor-password-input');
-        const loginBtn = document.getElementById('advisor-login-btn');
+    // Set up event listeners for advisor selection
+    function setupAdvisorSelectionListeners() {
         const advisorSelect = document.getElementById('advisor-select');
-        
-        if (!passwordInput || !loginBtn || !advisorSelect) {
-            console.error('Required advisor elements not found');
+
+        if (!advisorSelect) {
+            console.error('Advisor select element not found');
             return;
         }
-        
-        // Login button click
-        loginBtn.addEventListener('click', handleLogin);
-        
-        // Enter key in password field
-        passwordInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                handleLogin();
-            }
-        });
-        
+
         // Advisor selection change
         advisorSelect.addEventListener('change', handleAdvisorSelection);
 
@@ -126,19 +165,19 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.advisor-product-month-filter-btn').forEach(button => {
             button.addEventListener('click', function() {
                 selectedAdvisorProductMonth = this.getAttribute('data-month');
-                
+
                 // Update button styles
                 document.querySelectorAll('.advisor-product-month-filter-btn').forEach(btn => {
                     setAdvisorProductMonthButtonInactive(btn);
                 });
                 setAdvisorProductMonthButtonActive(this);
-                
+
                 // Update period text
                 updateAdvisorProductPeriodText();
-                
+
                 // Update the product table
                 updateAdvisorProductTable();
-                
+
                 console.log('Advisor product month filter changed to:', selectedAdvisorProductMonth);
             });
         });
@@ -147,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.advisor-customer-year-filter-btn').forEach(button => {
             button.addEventListener('click', function() {
                 selectedAdvisorCustomerYear = parseInt(this.getAttribute('data-year'));
-                
+
                 // Update button styles
                 document.querySelectorAll('.advisor-customer-year-filter-btn').forEach(btn => {
                     btn.classList.remove('bg-slate-800', 'text-white');
@@ -155,73 +194,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 this.classList.remove('bg-white', 'text-slate-700', 'border-slate-300');
                 this.classList.add('bg-slate-800', 'text-white');
-                
+
                 // Update year text
                 const yearText = document.getElementById('advisor-customer-year-text');
                 if (yearText) {
                     yearText.textContent = selectedAdvisorCustomerYear;
                 }
-                
+
                 // Update customer statistics
                 updateAdvisorCustomerStats();
-                
+
                 console.log('Advisor customer year filter changed to:', selectedAdvisorCustomerYear);
             });
         });
-
     }
     
-    // Handle login attempt
-    function handleLogin() {
-        const passwordInput = document.getElementById('advisor-password-input');
-        const errorElement = document.getElementById('advisor-login-error');
-        
-        if (!passwordInput || !advisorsAuthData) {
-            console.error('Login elements or auth data not available');
-            return;
-        }
-        
-        const enteredPassword = passwordInput.value.trim();
-        
-        if (enteredPassword === advisorsAuthData.manager_code) {
-            // Login successful
-            advisorsLoggedIn = true;
-            
-            // Hide login section
-            const loginSection = document.getElementById('advisor-login-section');
-            if (loginSection) {
-                loginSection.classList.add('hidden');
-            }
-            
-            // Show advisor selection
-            const selectionSection = document.getElementById('advisor-selection-section');
-            if (selectionSection) {
-                selectionSection.classList.remove('hidden');
-            }
-            
-            // Populate advisor dropdown
-            populateAdvisorDropdown();
-            
-            // Hide error message
-            if (errorElement) {
-                errorElement.classList.add('hidden');
-            }
-            
-            console.log('Login successful');
-            
-        } else {
-            // Login failed
-            if (errorElement) {
-                errorElement.classList.remove('hidden');
-            }
-            
-            // Clear password field
-            passwordInput.value = '';
-            passwordInput.focus();
-            
-            console.log('Login failed');
-        }
-    }
     
     // Populate the advisor dropdown with available advisors
     function populateAdvisorDropdown() {
@@ -372,42 +359,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Reset advisors tab (logout)
-    function resetAdvisorsTab() {
-        advisorsLoggedIn = false;
-        selectedAdvisor = null;
-
-        
-        // Show login section
-        const loginSection = document.getElementById('advisor-login-section');
-        if (loginSection) {
-            loginSection.classList.remove('hidden');
-        }
-        
-        // Hide other sections
-        const selectionSection = document.getElementById('advisor-selection-section');
-        const dataSection = document.getElementById('advisor-data-section');
-        
-        if (selectionSection) {
-            selectionSection.classList.add('hidden');
-        }
-        if (dataSection) {
-            dataSection.classList.add('hidden');
-        }
-        
-        // Clear form
-        const passwordInput = document.getElementById('advisor-password-input');
-        const advisorSelect = document.getElementById('advisor-select');
-        
-        if (passwordInput) {
-            passwordInput.value = '';
-        }
-        if (advisorSelect) {
-            advisorSelect.value = '';
-        }
-        
-        console.log('Advisors tab reset');
-    }
     
     // OLD TAB-BASED CODE - No longer needed for standalone page
     // Initialization now happens automatically on DOMContentLoaded above

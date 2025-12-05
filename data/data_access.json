@@ -1,0 +1,8 @@
+{
+  "allowed_users": [
+    "andre",
+    "ANMA",
+    "JMAD"
+  ],
+  "access_description": "List of Windows usernames allowed to access the data import page"
+}

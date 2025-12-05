@@ -1,9 +1,11 @@
 // Quad Excel to Database Converter
 // VERSION: 2.1 (Fixed identification logic)
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     let converterInitialized = false;
-    
+    let accessControlData = null;
+    let currentUser = null;
+
     // File Storage
     const files = {
         'axa': null,
@@ -41,16 +43,59 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function initializeConverter() {
         if (converterInitialized) return;
-        
+
         converterInitialized = true;
         console.log('Converter page initialized');
-        
+
         // Hide directory section (default behavior)
         const dirSection = document.getElementById('directory-section');
         if(dirSection) dirSection.classList.add('hidden');
 
         initWorker();
         setupEventListeners();
+    }
+
+    // Load access control data from JSON file
+    async function loadAccessControl() {
+        try {
+            const response = await fetch('../data/data_access.json');
+            if (!response.ok) {
+                throw new Error('Could not load data access control');
+            }
+            accessControlData = await response.json();
+            console.log('Data access control loaded:', accessControlData);
+        } catch (error) {
+            console.error('Error loading data access control:', error);
+            // Fallback: deny all access if file not found
+            accessControlData = { allowed_users: [] };
+        }
+    }
+
+    // Check if current user has access to data page
+    async function checkUserAccess() {
+        try {
+            // Load current user from server
+            currentUser = await UserLoader.loadUserInfo();
+            console.log('Current user:', currentUser.username);
+
+            // Check if user is in allowed list
+            const hasAccess = accessControlData.allowed_users.includes(currentUser.username);
+            console.log('User has access to data page:', hasAccess);
+
+            if (hasAccess) {
+                // Show main content
+                document.getElementById('data-main-content').classList.remove('hidden');
+                // Initialize converter functionality
+                initializeConverter();
+            } else {
+                // Show access denied
+                document.getElementById('data-access-denied-section').classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error('Error checking user access:', error);
+            // On error, deny access
+            document.getElementById('data-access-denied-section').classList.remove('hidden');
+        }
     }
 
     // --- FIL IDENTIFIKATION LOGIK (OPDATERET) ---
@@ -524,6 +569,10 @@ document.addEventListener('DOMContentLoaded', function() {
         showMasterError(msg);
     }
 
-    // Initialize immediately
-    initializeConverter();
+    // Load access control and check user access
+    await loadAccessControl();
+    await checkUserAccess();
+
+    // Note: initializeConverter() is now called from checkUserAccess()
+    // only if user has access
 });

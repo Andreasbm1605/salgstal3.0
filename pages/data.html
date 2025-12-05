@@ -95,6 +95,22 @@
                 <!-- CONTENT GRID -->
                 <div class="space-y-8">
 
+                    <!-- Access Denied Section (initially hidden) -->
+                    <section id="data-access-denied-section" class="bg-white rounded-xl border border-red-200 shadow-sm overflow-hidden hidden">
+                        <div class="p-8 max-w-lg mx-auto text-center">
+                            <div class="text-red-500 text-5xl mb-4">🔒</div>
+                            <h2 class="text-xl font-bold text-slate-900">Adgang Nægtet</h2>
+                            <p class="text-slate-600 mt-2 text-sm">Du har ikke tilladelse til at importere data.</p>
+                            <p class="text-slate-500 mt-4 text-xs">Kontakt din teamleder for adgang.</p>
+                            <a href="dashboard.html" class="inline-block mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                Tilbage til Dashboard
+                            </a>
+                        </div>
+                    </section>
+
+                    <!-- Main Content (initially hidden, shown after access check) -->
+                    <div id="data-main-content" class="hidden space-y-8">
+
                     <!-- Instructions -->
                     <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
                         <h3 class="text-slate-900 font-semibold mb-3">Sådan bruges quad Excel til JavaScript konverteren:</h3>
@@ -321,6 +337,9 @@
                             </div>
                         </div>
                     </section>
+
+                    </div>
+                    <!-- End of data-main-content -->
 
                 </div>
             </div>
