@@ -102,9 +102,31 @@ Write-Host "=================================================" -ForegroundColor 
 # Start browser (Since this is the first successful run)
 Start-Process $url
 
+# --- DETECT CURRENT USER ---
+$currentUsername = $env:USERNAME
+$displayName = if ($currentUsername -eq "andre") {
+    "Andre"
+} else {
+    "Administrator"
+}
+$profileImage = if ($currentUsername -eq "andre") {
+    "andre.png"
+} else {
+    "profilelb.png"
+}
+
+# Store user info for API access
+$userInfo = @{
+    username = $currentUsername
+    displayName = $displayName
+    profileImage = $profileImage
+}
+
+Write-Host "Detected user: $displayName ($currentUsername)" -ForegroundColor Cyan
+
 # Server loop in background runspace
 $serverScript = {
-    param($listener, $rootPath, $dbFile)
+    param($listener, $rootPath, $dbFile, $userInfo)
     
     while ($listener.IsListening) {
         try {
@@ -156,6 +178,18 @@ $serverScript = {
                 $response.ContentLength64 = $buffer.Length
                 $response.OutputStream.Write($buffer, 0, $buffer.Length)
             }
+            # --- API: GET USER INFO ---
+            elseif ($request.Url.LocalPath -eq "/api/user" -and $request.HttpMethod -eq "GET") {
+                $response.ContentType = "application/json; charset=utf-8"
+                $userJson = @{
+                    username = $userInfo.username
+                    displayName = $userInfo.displayName
+                    profileImage = $userInfo.profileImage
+                } | ConvertTo-Json -Compress
+                $buffer = [System.Text.Encoding]::UTF8.GetBytes($userJson)
+                $response.ContentLength64 = $buffer.Length
+                $response.OutputStream.Write($buffer, 0, $buffer.Length)
+            }
             # --- FIL-SERVER ---
             else {
                 $filePath = $request.Url.LocalPath.TrimStart('/')
@@ -192,10 +226,11 @@ $runspace.Open()
 $runspace.SessionStateProxy.SetVariable("listener", $listener)
 $runspace.SessionStateProxy.SetVariable("rootPath", $rootPath)
 $runspace.SessionStateProxy.SetVariable("dbFile", $dbFile)
+$runspace.SessionStateProxy.SetVariable("userInfo", $userInfo)
 
 $powershell = [powershell]::Create()
 $powershell.Runspace = $runspace
-$powershell.AddScript($serverScript).AddArgument($listener).AddArgument($rootPath).AddArgument($dbFile) | Out-Null
+$powershell.AddScript($serverScript).AddArgument($listener).AddArgument($rootPath).AddArgument($dbFile).AddArgument($userInfo) | Out-Null
 $handle = $powershell.BeginInvoke()
 
 # Keep the application running
