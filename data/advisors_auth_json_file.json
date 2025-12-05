@@ -3,31 +3,69 @@
   "advisors": [
     {
       "id": "flfa_lb",
-      "name": "Flemming F."
+      "name": "Flemming F.",
+      "user": "FLFA",
+      "raadgiver": false
     },
     {
-      "id": "jlar_lb", 
-      "name": "Jakob N. L."
+      "id": "jlar_lb",
+      "name": "Jakob N. L.",
+      "user": "JLAR",
+      "raadgiver": true
     },
     {
       "id": "rovi_lb",
-      "name": "Ronja S. V."
+      "name": "Ronja S. V.",
+      "user": "ROVI",
+      "raadgiver": true
     },
     {
       "id": "naas_lb",
-      "name": "Nils A."
+      "name": "Nils A.",
+      "user": "NAAS",
+      "raadgiver": true
     },
     {
       "id": "mapk_lb",
-      "name": "Maria P."
+      "name": "Maria P.",
+      "user": "MAPK",
+      "raadgiver": true
     },
     {
       "id": "kevfit",
-      "name": "Kevin F."
+      "name": "Kevin F.",
+      "user": "KEFI",
+      "raadgiver": true
     },
     {
       "id": "adrb",
-      "name": "Andreas D."
+      "name": "Andreas D.",
+      "user": "ADRB",
+      "raadgiver": true
+    },
+    {
+      "id": "anma",
+      "name": "Andreas B.",
+      "user": "ANMA",
+      "raadgiver": false
+    },
+    {
+      "id": "tmar",
+      "name": "Tobias M.",
+      "user": "TMAR",
+      "raadgiver": false
+    },
+    {
+      "id": "jmad",
+      "name": "Jeppe M.",
+      "user": "JMAD",
+      "raadgiver": false
+    },
+    {
+      "id": "andre",
+      "name": "Andre",
+      "user": "ANDRE",
+      "raadgiver": false
     }
   ]
 }

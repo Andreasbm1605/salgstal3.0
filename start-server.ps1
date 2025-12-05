@@ -104,10 +104,22 @@ Start-Process $url
 
 # --- DETECT CURRENT USER ---
 $currentUsername = $env:USERNAME
-$displayName = if ($currentUsername -eq "andre") {
-    "Andre"
-} else {
-    "Administrator"
+
+# Load advisors JSON to get display name
+$advisorsJsonPath = "$rootPath\data\advisors_auth_json_file.json"
+$displayName = "Unknown User"  # Default fallback
+
+if (Test-Path $advisorsJsonPath) {
+    try {
+        $advisorsJson = Get-Content $advisorsJsonPath -Raw -Encoding UTF8 | ConvertFrom-Json
+        $matchedAdvisor = $advisorsJson.advisors | Where-Object { $_.user -eq $currentUsername.ToUpper() }
+
+        if ($matchedAdvisor) {
+            $displayName = $matchedAdvisor.name
+        }
+    } catch {
+        Write-Host "Warning: Could not load advisor data for display name" -ForegroundColor Yellow
+    }
 }
 # Convert username to uppercase for image filename
 $profileImage = "Profilbilleder/$($currentUsername.ToUpper()).jpg"

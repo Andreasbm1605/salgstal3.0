@@ -234,9 +234,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Clear existing options (except the first placeholder)
         advisorSelect.innerHTML = '<option value="">Vælg rådgiver...</option>';
-        
+
+        // Filter to only show advisors (raadgiver !== false)
+        const activeAdvisors = advisorsAuthData.advisors.filter(advisor => advisor.raadgiver !== false);
+
         // Add advisor options with background images
-        advisorsAuthData.advisors.forEach(advisor => {
+        activeAdvisors.forEach(advisor => {
             const option = document.createElement('option');
             option.value = advisor.id;
             option.textContent = advisor.name;
@@ -261,8 +264,8 @@ document.addEventListener('DOMContentLoaded', function() {
         advisorSelect.style.backgroundPosition = '8px center';
         advisorSelect.style.backgroundSize = '20px 20px';
         advisorSelect.style.paddingLeft = '35px';
-        
-        console.log('Advisor dropdown populated with', advisorsAuthData.advisors.length, 'advisors');
+
+        console.log('Advisor dropdown populated with', activeAdvisors.length, 'advisors');
     }
     
     // Handle advisor selection
