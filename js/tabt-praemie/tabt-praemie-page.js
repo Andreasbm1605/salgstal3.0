@@ -21,6 +21,10 @@ document.addEventListener('DOMContentLoaded', async function() {
             lostPremiumsData = await loadLostPremiums();
             console.log('Lost premiums data loaded:', lostPremiumsData);
 
+            // Load DB25 codes and initialize autocomplete
+            const db25Data = await DB25Loader.loadCodes();
+            initializeAutocomplete(db25Data);
+
             // Setup event listeners
             setupEventListeners();
 
@@ -31,6 +35,28 @@ document.addEventListener('DOMContentLoaded', async function() {
             console.error('Failed to initialize page:', error);
             showErrorMessage('Kunne ikke indlæse siden. Prøv at genindlæse.');
         }
+    }
+
+    /**
+     * Initialize DB25 autocomplete
+     */
+    function initializeAutocomplete(db25Data) {
+        const inputElement = document.getElementById('db25_kode_input');
+        const hiddenCodeField = document.getElementById('db25_kode');
+        const beskrivelseField = document.getElementById('db25_beskrivelse');
+        const beskrivelseContainer = document.getElementById('db25-beskrivelse-container');
+
+        const autocomplete = new DB25Autocomplete(inputElement, (selectedItem) => {
+            // Callback when user selects an item
+            hiddenCodeField.value = selectedItem.code;
+            beskrivelseField.value = selectedItem.description;
+            beskrivelseContainer.classList.remove('hidden');
+
+            // Trigger validation
+            validateForm();
+        });
+
+        autocomplete.init(db25Data);
     }
 
     /**
@@ -150,6 +176,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             const newRecord = {
                 id: generateUniqueId(),
                 db25_kode: document.getElementById('db25_kode').value.trim(),
+                db25_beskrivelse: document.getElementById('db25_beskrivelse').value.trim(),
                 erhverv: document.getElementById('erhverv').value.trim(),
                 praemie_kr: parseFloat(document.getElementById('praemie_kr').value),
                 aarsag: document.getElementById('aarsag').value,
@@ -181,6 +208,8 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             // Clear form
             document.getElementById('lost-premium-form').reset();
+            document.getElementById('db25_kode_input').value = ''; // Clear autocomplete input
+            document.getElementById('db25-beskrivelse-container').classList.add('hidden'); // Hide description
             document.getElementById('kommentar-counter').textContent = '0';
             submitBtn.disabled = true;
 
@@ -237,6 +266,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 <tr class="hover:bg-slate-50 transition-colors">
                     <td class="py-3 px-6 text-slate-700 whitespace-nowrap">${date}</td>
                     <td class="py-3 px-6 text-slate-700">${escapeHtml(record.db25_kode)}</td>
+                    <td class="py-3 px-6 text-slate-700 text-sm">${escapeHtml(record.db25_beskrivelse || '-')}</td>
                     <td class="py-3 px-6 text-slate-700">${escapeHtml(record.erhverv)}</td>
                     <td class="text-right py-3 px-6 text-slate-700 font-medium whitespace-nowrap">${praemie}</td>
                     <td class="py-3 px-6 text-slate-700">${escapeHtml(record.aarsag)}</td>
@@ -342,6 +372,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             const excelData = sortedRecords.map(record => ({
                 'Dato': formatDateForExcel(record.created_at),
                 'DB25 Kode': record.db25_kode,
+                'Branchebeskrivelse': record.db25_beskrivelse || '',
                 'Erhverv': record.erhverv,
                 'Præmie (kr)': record.praemie_kr,
                 'Årsag': record.aarsag,
@@ -356,7 +387,8 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Set column widths for better readability
             worksheet['!cols'] = [
                 { wch: 18 }, // Dato
-                { wch: 15 }, // DB25 Kode
+                { wch: 12 }, // DB25 Kode
+                { wch: 50 }, // Branchebeskrivelse
                 { wch: 30 }, // Erhverv
                 { wch: 12 }, // Præmie
                 { wch: 20 }, // Årsag
