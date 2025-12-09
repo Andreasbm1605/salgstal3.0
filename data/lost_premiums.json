@@ -1,0 +1,18 @@
+﻿{
+    "metadata":  {
+                     "lastUpdated":  "2025-12-09T11:12:34.190Z"
+                 },
+    "records":  [
+                    {
+                        "id":  "lp_1765278754150_rx5w7zzub",
+                        "db25_kode":  "DB92864217",
+                        "erhverv":  "Pølsemand",
+                        "praemie_kr":  10000,
+                        "aarsag":  "Ingen risikoappetit",
+                        "sagsbehandler":  "andre",
+                        "kommentar":  "Hvad så der min g han ville have forsikring men vi kunne ikke på risikoen",
+                        "created_at":  "2025-12-09T11:12:34.150Z",
+                        "created_by_display_name":  "Andre"
+                    }
+                ]
+}

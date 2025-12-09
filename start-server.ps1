@@ -199,6 +199,58 @@ $serverScript = {
                 $response.ContentLength64 = $buffer.Length
                 $response.OutputStream.Write($buffer, 0, $buffer.Length)
             }
+            # --- LOST PREMIUMS API ---
+            elseif ($request.Url.LocalPath -eq "/api/lost-premiums" -and $request.HttpMethod -eq "GET") {
+                $lostPremiumsFile = "$rootPath\data\lost_premiums.json"
+
+                if (Test-Path $lostPremiumsFile) {
+                    $json = Get-Content $lostPremiumsFile -Raw -Encoding UTF8
+                    $buffer = [System.Text.Encoding]::UTF8.GetBytes($json)
+                } else {
+                    # Return empty structure if file doesn't exist
+                    $emptyData = @{
+                        metadata = @{
+                            lastUpdated = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+                        }
+                        records = @()
+                    } | ConvertTo-Json -Depth 10
+                    $buffer = [System.Text.Encoding]::UTF8.GetBytes($emptyData)
+                }
+
+                $response.ContentType = "application/json; charset=utf-8"
+                $response.ContentLength64 = $buffer.Length
+                $response.OutputStream.Write($buffer, 0, $buffer.Length)
+            }
+            elseif ($request.Url.LocalPath -eq "/api/lost-premiums" -and $request.HttpMethod -eq "POST") {
+                try {
+                    $encoding = [System.Text.Encoding]::UTF8
+                    $reader = New-Object System.IO.StreamReader($request.InputStream, $encoding)
+                    $body = $reader.ReadToEnd()
+
+                    $lostPremiumsFile = "$rootPath\data\lost_premiums.json"
+
+                    # Update metadata timestamp
+                    $jsonData = $body | ConvertFrom-Json
+                    $jsonData.metadata.lastUpdated = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ss.fffZ")
+
+                    # Save to file
+                    $updatedJson = $jsonData | ConvertTo-Json -Depth 10
+                    [System.IO.File]::WriteAllText($lostPremiumsFile, $updatedJson, $encoding)
+
+                    Write-Host "Lost premium data saved successfully" -ForegroundColor Green
+                    $msg = "Lost premium data saved successfully"
+                    $buffer = [System.Text.Encoding]::UTF8.GetBytes($msg)
+                    $response.StatusCode = 200
+                } catch {
+                    Write-Host "Error saving lost premium data: $_" -ForegroundColor Red
+                    $msg = "Error saving data: $_"
+                    $buffer = [System.Text.Encoding]::UTF8.GetBytes($msg)
+                    $response.StatusCode = 500
+                }
+
+                $response.ContentLength64 = $buffer.Length
+                $response.OutputStream.Write($buffer, 0, $buffer.Length)
+            }
             # --- FIL-SERVER ---
             else {
                 $filePath = $request.Url.LocalPath.TrimStart('/')

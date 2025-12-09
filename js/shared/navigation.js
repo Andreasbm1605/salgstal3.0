@@ -27,6 +27,7 @@ function getCurrentPage() {
     if (path.includes('dashboard.html')) return 'dashboard';
     if (path.includes('advisors.html')) return 'advisors';
     if (path.includes('tilbudsopfølgning.html')) return 'tilbudsopfølgning';
+    if (path.includes('tabt-praemie.html')) return 'tabt-praemie';
     if (path.includes('data.html')) return 'data';
     return 'dashboard'; // default
 }

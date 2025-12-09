@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabt Præmie - Salgstal 3.1</title>
+
+    <!-- Dollar Sign Favicon -->
+    <link rel="icon" type="image/svg+xml" href="https://icons.iconarchive.com/icons/papirus-team/papirus-apps/128/money-manager-ex-icon.png" width="128" height="128">
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+    <!-- SheetJS library for Excel export -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&amp;family=Inter%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
+    />
+    <style>
+        body {
+            font-family: Inter, "Noto Sans", sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-slate-900 overflow-hidden">
+
+    <div class="flex h-screen w-full">
+
+        <!-- LEFT SIDEBAR -->
+        <aside class="w-64 h-full flex flex-col bg-slate-900 text-white shrink-0 transition-all duration-300 border-r border-slate-800">
+            <!-- Logo Section -->
+            <div class="h-20 flex items-center justify-center border-b border-slate-800 px-6">
+                <div class="bg-slate-800 rounded-lg p-2 w-full flex justify-center items-center shadow-sm">
+                    <img src="../assets/images/LBERHVERV LOGO.png" alt="LB Erhverv" class="h-8 w-auto object-contain">
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="flex-1 overflow-y-auto py-6 px-3 flex flex-col gap-2">
+                <p class="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Menu</p>
+
+                <a href="dashboard.html" data-page="dashboard" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group">
+                    <svg class="w-5 h-5 opacity-75 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                    </svg>
+                    <span class="font-medium">Dashboard</span>
+                </a>
+
+                <a href="advisors.html" data-page="advisors" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group">
+                    <svg class="w-5 h-5 opacity-75 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    <span class="font-medium">Rådgivere</span>
+                </a>
+
+                <a href="tilbudsopfølgning.html" data-page="tilbudsopfølgning" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group">
+                    <svg class="w-5 h-5 opacity-75 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                    </svg>
+                    <span class="font-medium">Tilbudsopfølgning</span>
+                </a>
+
+                <a href="tabt-praemie.html" data-page="tabt-praemie" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group">
+                    <svg class="w-5 h-5 opacity-75 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path>
+                    </svg>
+                    <span class="font-medium">Tabt Præmie</span>
+                </a>
+
+                <a href="data.html" data-page="data" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group">
+                    <svg class="w-5 h-5 opacity-75 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path>
+                    </svg>
+                    <span class="font-medium">Data</span>
+                </a>
+            </nav>
+
+            <!-- Profile Section (Bottom) -->
+            <div class="p-4 border-t border-slate-800">
+                <div class="flex items-center gap-3 px-2 py-2 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                    <img id="profile-image" src="../assets/images/profilelb.png" alt="User" class="h-10 w-10 rounded-full border-2 border-slate-600 object-cover">
+                    <div class="flex flex-col">
+                        <span id="profile-username" class="text-sm font-bold text-white">Administrator</span>
+                        <span class="text-xs text-slate-400">LB Erhverv</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 h-full overflow-y-auto bg-gray-100 relative">
+            <div class="max-w-7xl mx-auto px-8 py-8">
+
+                <!-- Header Area -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+                    <div>
+                        <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Tabt Præmie</h1>
+                        <p class="text-slate-500 mt-1">Registrering af tabte præmier</p>
+                    </div>
+                </div>
+
+                <!-- CONTENT GRID -->
+                <div class="space-y-8">
+
+                    <!-- Success Message -->
+                    <div id="success-message" class="hidden bg-green-50 border border-green-200 rounded-lg p-4 flex items-start gap-3">
+                        <svg class="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <p class="text-green-800 font-medium" id="success-message-text">Tabt præmie er registreret succesfuldt</p>
+                        </div>
+                        <button onclick="document.getElementById('success-message').classList.add('hidden')" class="text-green-600 hover:text-green-800">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Error Message -->
+                    <div id="error-message" class="hidden bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+                        <svg class="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div class="flex-1">
+                            <p class="text-red-800 font-medium" id="error-message-text">Fejl ved gemning af data</p>
+                        </div>
+                        <button onclick="document.getElementById('error-message').classList.add('hidden')" class="text-red-600 hover:text-red-800">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Form Section -->
+                    <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="p-6 border-b border-slate-100">
+                            <h2 class="text-lg font-bold text-slate-900">Registrer tabt præmie</h2>
+                            <p class="text-sm text-slate-500 mt-1">Udfyld formularen nedenfor for at registrere en tabt præmie</p>
+                        </div>
+
+                        <div class="p-6">
+                            <form id="lost-premium-form" class="space-y-6">
+                                <!-- DB25 kode -->
+                                <div>
+                                    <label for="db25_kode" class="block text-sm font-medium text-slate-700 mb-2">
+                                        DB25 kode <span class="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="db25_kode"
+                                        name="db25_kode"
+                                        required
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all"
+                                        placeholder="Indtast DB25 kode"
+                                    >
+                                </div>
+
+                                <!-- Erhverv -->
+                                <div>
+                                    <label for="erhverv" class="block text-sm font-medium text-slate-700 mb-2">
+                                        Erhverv <span class="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="erhverv"
+                                        name="erhverv"
+                                        required
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all"
+                                        placeholder="Indtast erhverv/virksomhedsnavn"
+                                    >
+                                </div>
+
+                                <!-- Præmie kr. -->
+                                <div>
+                                    <label for="praemie_kr" class="block text-sm font-medium text-slate-700 mb-2">
+                                        Præmie kr. (cirka) <span class="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        id="praemie_kr"
+                                        name="praemie_kr"
+                                        required
+                                        min="0"
+                                        step="0.01"
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all"
+                                        placeholder="0.00"
+                                    >
+                                </div>
+
+                                <!-- Årsag -->
+                                <div>
+                                    <label for="aarsag" class="block text-sm font-medium text-slate-700 mb-2">
+                                        Årsag <span class="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        id="aarsag"
+                                        name="aarsag"
+                                        required
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all"
+                                    >
+                                        <option value="">Vælg årsag</option>
+                                        <option value="Ingen risikoappetit">Ingen risikoappetit</option>
+                                        <option value="Prisniveau">Prisniveau</option>
+                                        <option value="Andet">Andet</option>
+                                    </select>
+                                </div>
+
+                                <!-- Kommentar -->
+                                <div>
+                                    <label for="kommentar" class="block text-sm font-medium text-slate-700 mb-2">
+                                        Evt. kommentar
+                                    </label>
+                                    <textarea
+                                        id="kommentar"
+                                        name="kommentar"
+                                        rows="3"
+                                        maxlength="500"
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all resize-none"
+                                        placeholder="Tilføj evt. yderligere kommentar (max 500 tegn)"
+                                    ></textarea>
+                                    <p class="text-sm text-slate-500 mt-1">
+                                        <span id="kommentar-counter">0</span>/500 tegn
+                                    </p>
+                                </div>
+
+                                <!-- Submit Button -->
+                                <div class="flex justify-end pt-4">
+                                    <button
+                                        type="submit"
+                                        id="submit-btn"
+                                        disabled
+                                        class="px-6 py-2.5 bg-slate-900 text-white rounded-lg font-medium hover:bg-slate-800 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed"
+                                    >
+                                        Gem tabt præmie
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+
+                    <!-- Records Table Section -->
+                    <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-900">Registrerede tabte præmier</h2>
+                                <p class="text-sm text-slate-500 mt-1">Oversigt over alle registrerede tabte præmier</p>
+                            </div>
+                            <button
+                                id="export-excel-btn"
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center gap-2"
+                            >
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                Download Excel
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                                    <tr>
+                                        <th class="py-3 px-6 whitespace-nowrap">Dato</th>
+                                        <th class="py-3 px-6 whitespace-nowrap">DB25 kode</th>
+                                        <th class="py-3 px-6 whitespace-nowrap">Erhverv</th>
+                                        <th class="text-right py-3 px-6 whitespace-nowrap">Præmie</th>
+                                        <th class="py-3 px-6 whitespace-nowrap">Årsag</th>
+                                        <th class="py-3 px-6 whitespace-nowrap">Sagsbehandler</th>
+                                        <th class="py-3 px-6">Kommentar</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="records-table-body" class="divide-y divide-slate-100">
+                                    <!-- Rows populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div id="empty-state" class="hidden p-10 text-center">
+                            <svg class="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <p class="text-slate-400 font-medium">Ingen tabte præmier registreret endnu</p>
+                            <p class="text-slate-500 text-sm mt-1">Brug formularen ovenfor til at registrere en tabt præmie</p>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Shared JavaScript -->
+    <script src="../js/shared/utils.js"></script>
+    <script src="../js/shared/data-loader.js"></script>
+    <script src="../js/shared/navigation.js"></script>
+    <script src="../js/shared/user-loader.js"></script>
+
+    <!-- Load user profile info -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            UserLoader.updateProfileUI();
+        });
+    </script>
+
+    <!-- Page-specific JavaScript -->
+    <script src="../js/tabt-praemie/tabt-praemie-page.js"></script>
+</body>
+</html>
