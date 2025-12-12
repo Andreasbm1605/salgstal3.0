@@ -140,7 +140,7 @@ const SalgstalUtils = {
             'Kevin Fitzgerald': 'kevfit',
             'Maria Påskesen': 'mapk_lb',
             'Nils Aaskilde': 'naas_lb',
-            'Ronja Støterau Vikjær': 'rovi_lb',
+            'Ronja Vikjær Rytter': 'rovi_lb',
             'Andreas Dræby': 'adrb'
         };
 

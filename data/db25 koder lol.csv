@@ -1,58 +1,58 @@
 ﻿DB25 kode;Tekst (DB25)
-11100;Dyrkning af korn (undtagen ris), bælgfrugter og olieholdige frø
-11200;Dyrkning af ris
-11300;Dyrkning af grøntsager og meloner, rødder og rodknolde
-11400;Dyrkning af sukkerrør
-11500;Dyrkning af tobak
-11600;Dyrkning af tekstilplanter
-11900;Dyrkning af andre etårige afgrøder
-12100;Dyrkning af druer
-12200;Dyrkning af tropiske og subtropiske frugter
-12300;Dyrkning af citrusfrugter
-12400;Dyrkning af kernefrugter og stenfrugter
-12500;Dyrkning af andre træfrugter, bær og nødder
-12600;Dyrkning af olieholdige frugter
-12700;Dyrkning af planter til fremstilling af drikkevarer
-12800;Dyrkning af krydderiplanter, aromaplanter og lægeplanter
-12900;Dyrkning af andre flerårige afgrøder
-13000;Planteformering
-14100;Avl af malkekvæg
-14200;Avl af andet kvæg og bøfler
-14300;Avl af heste og dyr af hestefamilien
-14400;Avl af kameler og dyr af kamelfamilien
-14500;Avl af får og geder
-14610;Avl af smågrise
-14620;Produktion af slagtesvin
-14700;Fjerkræavl
-14800;Avl af andre dyr
-15000;Blandet landbrugsdrift
-16100;Støtteaktiviteter i forbindelse med planteavl
-16200;Støtteaktiviteter i forbindelse med husdyravl
-16300;Forarbejdning af afgrøder efter høst af frø/sædekorn til udsæd
-17000;Jagt, fældefangst og serviceydelser i forbindelse hermed
-21000;Dyrkning af træer og andre skovbrugsaktiviteter
-22000;Skovning
-23000;Indsamling af vildtvoksende forstmateriale undtagen træer
-24000;Støtteaktiviteter i forbindelse med skovbrug
-31100;Havfiskeri
-31200;Ferskvandsfiskeri
-32100;Havbrug
-32200;Ferskvandsbrug
-51000;Indvinding af stenkul
-52000;Indvinding af brunkul
-61000;Indvinding af råolie
-62000;Indvinding af naturgas
-71000;Brydning af jernmalm
-72100;Brydning af uran- og thoriummalme
-72900;Brydning af andre ikke-jernholdige metalmalme
-81100;Brydning af pyntesaten, kalksten, gips, skifer mv.
-81200;Grus- og sandgravning og indvinding af ler og kaolin
-89100;Indvinding af mineraler til fremstilling af kemiske produkter og gødningsstoffer
-89200;Indvinding af tørv
-89300;Saltindvinding
-89900;Anden råstofindvinding i.a.n.
-91000;Støtteaktiviteter i forbindelse med indvinding af råolie og naturgas
-99000;Støtteaktiviteter i forbindelse med anden råstofindvinding
+011100;Dyrkning af korn (undtagen ris), bælgfrugter og olieholdige frø
+011200;Dyrkning af ris
+011300;Dyrkning af grøntsager og meloner, rødder og rodknolde
+011400;Dyrkning af sukkerrør
+011500;Dyrkning af tobak
+011600;Dyrkning af tekstilplanter
+011900;Dyrkning af andre etårige afgrøder
+012100;Dyrkning af druer
+012200;Dyrkning af tropiske og subtropiske frugter
+012300;Dyrkning af citrusfrugter
+012400;Dyrkning af kernefrugter og stenfrugter
+012500;Dyrkning af andre træfrugter, bær og nødder
+012600;Dyrkning af olieholdige frugter
+012700;Dyrkning af planter til fremstilling af drikkevarer
+012800;Dyrkning af krydderiplanter, aromaplanter og lægeplanter
+012900;Dyrkning af andre flerårige afgrøder
+013000;Planteformering
+014100;Avl af malkekvæg
+014200;Avl af andet kvæg og bøfler
+014300;Avl af heste og dyr af hestefamilien
+014400;Avl af kameler og dyr af kamelfamilien
+014500;Avl af får og geder
+014610;Avl af smågrise
+014620;Produktion af slagtesvin
+014700;Fjerkræavl
+014800;Avl af andre dyr
+015000;Blandet landbrugsdrift
+016100;Støtteaktiviteter i forbindelse med planteavl
+016200;Støtteaktiviteter i forbindelse med husdyravl
+016300;Forarbejdning af afgrøder efter høst af frø/sædekorn til udsæd
+017000;Jagt, fældefangst og serviceydelser i forbindelse hermed
+021000;Dyrkning af træer og andre skovbrugsaktiviteter
+022000;Skovning
+023000;Indsamling af vildtvoksende forstmateriale undtagen træer
+024000;Støtteaktiviteter i forbindelse med skovbrug
+031100;Havfiskeri
+031200;Ferskvandsfiskeri
+032100;Havbrug
+032200;Ferskvandsbrug
+051000;Indvinding af stenkul
+052000;Indvinding af brunkul
+061000;Indvinding af råolie
+062000;Indvinding af naturgas
+071000;Brydning af jernmalm
+072100;Brydning af uran- og thoriummalme
+072900;Brydning af andre ikke-jernholdige metalmalme
+081100;Brydning af pyntesaten, kalksten, gips, skifer mv.
+081200;Grus- og sandgravning og indvinding af ler og kaolin
+089100;Indvinding af mineraler til fremstilling af kemiske produkter og gødningsstoffer
+089200;Indvinding af tørv
+089300;Saltindvinding
+089900;Anden råstofindvinding i.a.n.
+091000;Støtteaktiviteter i forbindelse med indvinding af råolie og naturgas
+099000;Støtteaktiviteter i forbindelse med anden råstofindvinding
 101110;Forarbejdning af svinekød
 101190;Forarbejdning af andet kød
 101200;Forarbejdning og konservering af fjerkrækød

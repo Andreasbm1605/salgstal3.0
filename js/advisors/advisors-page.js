@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 advisors: [
                     {id: "flfa_lb", name: "Flemming F."},
                     {id: "jlar_lb", name: "Jakob N. L."},
-                    {id: "rovi_lb", name: "Ronja S. V."},
+                    {id: "rovi_lb", name: "Ronja V. R."},
                     {id: "naas_lb", name: "Nils A."},
                     {id: "mapk_lb", name: "Maria P."},
                     {id: "kevfit", name: "Kevin F."},
