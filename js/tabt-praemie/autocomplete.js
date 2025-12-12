@@ -2,8 +2,9 @@
 // Provides searchable dropdown with keyboard navigation for DB25 codes
 
 class DB25Autocomplete {
-    constructor(inputElement, onSelect) {
+    constructor(inputElement, dropdownElementId, onSelect) {
         this.inputElement = inputElement;
+        this.dropdownElementId = dropdownElementId;
         this.onSelect = onSelect; // Callback function when item is selected
         this.db25Data = [];
         this.filteredData = [];
@@ -26,7 +27,7 @@ class DB25Autocomplete {
         this.filteredData = db25Data;
 
         // Find or create dropdown element
-        this.dropdownElement = document.getElementById('autocomplete-dropdown');
+        this.dropdownElement = document.getElementById(this.dropdownElementId);
 
         if (!this.dropdownElement) {
             console.error('Autocomplete dropdown element not found');

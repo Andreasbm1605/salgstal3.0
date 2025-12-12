@@ -262,6 +262,152 @@
                         </div>
                     </section>
 
+                    <!-- Edit Modal -->
+                    <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                            <div class="flex justify-between items-center p-6 border-b border-slate-200">
+                                <h3 class="text-xl font-semibold text-slate-900">Rediger Tabt Præmie</h3>
+                                <button id="closeEditModal" class="text-slate-400 hover:text-slate-600 transition-colors">
+                                    <span class="text-3xl leading-none">&times;</span>
+                                </button>
+                            </div>
+
+                            <form id="editForm" class="p-6 space-y-5">
+                                <input type="hidden" id="editRecordId">
+
+                                <!-- DB25 Kode (with autocomplete) -->
+                                <div>
+                                    <label for="editDb25Input" class="block text-sm font-medium text-slate-700 mb-2">
+                                        DB25 kode <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="autocomplete-container relative">
+                                        <input
+                                            type="text"
+                                            id="editDb25Input"
+                                            autocomplete="off"
+                                            class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all"
+                                            placeholder="Søg efter DB25 kode eller beskrivelse"
+                                        >
+                                        <div id="editDb25Dropdown" class="hidden absolute z-50 w-full bg-white border border-slate-300 rounded-lg shadow-lg mt-1 max-h-[300px] overflow-y-auto"></div>
+                                    </div>
+                                    <input type="hidden" id="editDb25Kode">
+                                </div>
+
+                                <!-- Branchebeskrivelse (read-only, auto-filled) -->
+                                <div id="editDb25BeskrivelseContainer" class="hidden">
+                                    <label for="editDb25Beskrivelse" class="block text-sm font-medium text-slate-700 mb-2">
+                                        Branchebeskrivelse
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="editDb25Beskrivelse"
+                                        readonly
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg bg-slate-50 text-slate-700 cursor-not-allowed"
+                                        placeholder="Vælg først en DB25 kode"
+                                    >
+                                </div>
+
+                                <!-- Erhverv -->
+                                <div>
+                                    <label for="editErhverv" class="block text-sm font-medium text-slate-700 mb-2">
+                                        Erhverv <span class="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="editErhverv"
+                                        required
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all"
+                                        placeholder="Indtast erhverv"
+                                    >
+                                </div>
+
+                                <!-- Præmie kr. -->
+                                <div>
+                                    <label for="editPraemie" class="block text-sm font-medium text-slate-700 mb-2">
+                                        Præmie kr. (cirka) <span class="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="number"
+                                        id="editPraemie"
+                                        required
+                                        min="0"
+                                        step="0.01"
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all"
+                                        placeholder="0.00"
+                                    >
+                                </div>
+
+                                <!-- Årsag -->
+                                <div>
+                                    <label for="editAarsag" class="block text-sm font-medium text-slate-700 mb-2">
+                                        Årsag <span class="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        id="editAarsag"
+                                        required
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all"
+                                    >
+                                        <option value="">Vælg årsag</option>
+                                        <option value="Ingen risikoappetit">Ingen risikoappetit</option>
+                                        <option value="Prisniveau">Prisniveau</option>
+                                        <option value="Andet">Andet</option>
+                                    </select>
+                                </div>
+
+                                <!-- Kommentar -->
+                                <div>
+                                    <label for="editKommentar" class="block text-sm font-medium text-slate-700 mb-2">
+                                        Evt. kommentar
+                                    </label>
+                                    <textarea
+                                        id="editKommentar"
+                                        rows="3"
+                                        maxlength="500"
+                                        class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all resize-none"
+                                        placeholder="Tilføj evt. yderligere kommentar (max 500 tegn)"
+                                    ></textarea>
+                                    <p class="text-sm text-slate-500 mt-1">
+                                        <span id="editCharCount">0</span>/500 tegn
+                                    </p>
+                                </div>
+
+                                <!-- Buttons -->
+                                <div class="flex justify-end gap-3 pt-4">
+                                    <button type="button" id="cancelEdit" class="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition-colors">
+                                        Annuller
+                                    </button>
+                                    <button type="submit" id="saveEdit" disabled class="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed">
+                                        Gem Ændringer
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Delete Confirmation Modal -->
+                    <div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+                            <div class="p-6">
+                                <div class="flex items-center justify-center w-14 h-14 mx-auto bg-red-100 rounded-full mb-5">
+                                    <svg class="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-xl font-semibold text-slate-900 text-center mb-2">Slet Post</h3>
+                                <p class="text-slate-600 text-center mb-6">Er du sikker på at du vil slette denne række?</p>
+
+                                <div class="flex justify-center gap-3">
+                                    <button id="cancelDelete" class="px-6 py-2.5 bg-slate-200 text-slate-700 rounded-lg font-medium hover:bg-slate-300 transition-colors">
+                                        Nej
+                                    </button>
+                                    <button id="confirmDelete" class="px-6 py-2.5 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors">
+                                        Ja, slet
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Records Table Section -->
                     <section class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                         <div class="p-6 border-b border-slate-100 flex justify-between items-center">
@@ -292,6 +438,7 @@
                                         <th class="py-3 px-6 whitespace-nowrap">Årsag</th>
                                         <th class="py-3 px-6 whitespace-nowrap">Sagsbehandler</th>
                                         <th class="py-3 px-6">Kommentar</th>
+                                        <th class="py-3 px-6 text-right whitespace-nowrap">Handlinger</th>
                                     </tr>
                                 </thead>
                                 <tbody id="records-table-body" class="divide-y divide-slate-100">
