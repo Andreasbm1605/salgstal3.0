@@ -203,6 +203,10 @@ document.addEventListener('DOMContentLoaded', async function() {
         submitBtn.textContent = 'Gemmer...';
 
         try {
+            // Reload fresh data from server to prevent overwriting changes made by other users
+            console.log('Reloading fresh data before creating new record...');
+            lostPremiumsData = await loadLostPremiums();
+
             // Create new record object
             const newRecord = {
                 id: generateUniqueId(),
@@ -219,7 +223,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             console.log('Creating new record:', newRecord);
 
-            // Add record to data structure
+            // Add record to FRESH data structure
             lostPremiumsData.records.push(newRecord);
 
             // Save to API
@@ -488,15 +492,31 @@ document.addEventListener('DOMContentLoaded', async function() {
     /**
      * Open edit modal for a specific record
      */
-    function openEditModal(recordId) {
-        // Find the record
-        const record = lostPremiumsData.records.find(r => r.id === recordId);
-        if (!record) {
-            showErrorMessage('Record ikke fundet');
+    async function openEditModal(recordId) {
+        try {
+            // Reload fresh data from server to ensure we have the latest version
+            console.log('Reloading fresh data before editing record...');
+            lostPremiumsData = await loadLostPremiums();
+
+            // Re-render table to show any changes made by other users
+            renderRecordsTable(lostPremiumsData.records);
+
+            // Find the record in FRESH data
+            const record = lostPremiumsData.records.find(r => r.id === recordId);
+            if (!record) {
+                showErrorMessage('Denne record blev slettet af en anden bruger');
+                return;
+            }
+
+            console.log('Opening edit modal for record:', record);
+        } catch (error) {
+            console.error('Failed to reload data:', error);
+            showErrorMessage('Kunne ikke indlæse seneste data. Prøv igen.');
             return;
         }
 
-        console.log('Opening edit modal for record:', record);
+        // Find the record for modal population
+        const record = lostPremiumsData.records.find(r => r.id === recordId);
 
         // Destroy previous autocomplete instance if exists
         if (editAutocomplete) {
@@ -726,9 +746,29 @@ document.addEventListener('DOMContentLoaded', async function() {
     /**
      * Open delete confirmation modal
      */
-    function openDeleteModal(recordId) {
-        recordToDelete = recordId;
-        document.getElementById('deleteModal').classList.remove('hidden');
+    async function openDeleteModal(recordId) {
+        try {
+            // Reload fresh data from server to ensure record still exists
+            console.log('Reloading fresh data before deleting record...');
+            lostPremiumsData = await loadLostPremiums();
+
+            // Re-render table to show any changes made by other users
+            renderRecordsTable(lostPremiumsData.records);
+
+            // Check if record still exists in FRESH data
+            const record = lostPremiumsData.records.find(r => r.id === recordId);
+            if (!record) {
+                showErrorMessage('Denne record blev allerede slettet af en anden bruger');
+                return;
+            }
+
+            // Proceed with delete confirmation
+            recordToDelete = recordId;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        } catch (error) {
+            console.error('Failed to reload data:', error);
+            showErrorMessage('Kunne ikke indlæse seneste data. Prøv igen.');
+        }
     }
 
     /**
