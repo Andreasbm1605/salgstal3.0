@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File System Access API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section.supported {
+            border-color: #4CAF50;
+            background-color: #f8fff8;
+        }
+        .test-section.not-supported {
+            border-color: #f44336;
+            background-color: #fff8f8;
+        }
+        button {
+            background-color: #007cba;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background-color: #005a87;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .feature-check {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .progress {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #007cba;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .folder-info {
+            background-color: #e7f3ff;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>File System Access API Test</h1>
+        
+        <div class="feature-check">
+            <h3>API Availability Check</h3>
+            <div id="featureStatus">Checking...</div>
+        </div>
+
+        <div class="folder-info" id="folderInfo" style="display: none;">
+            <strong>Selected Folder:</strong> <span id="folderPath">None</span>
+        </div>
+
+        <div class="test-section" id="test1">
+            <h3>Test 1: Basic Folder Selection</h3>
+            <p>Tests if you can select a folder where files will be saved.</p>
+            <button onclick="selectFolder()" id="selectBtn">Select Folder</button>
+            <div id="status1" class="status" style="display: none;"></div>
+        </div>
+
+        <div class="test-section" id="test2">
+            <h3>Test 2: Single File Write</h3>
+            <p>Saves one simple HTML file to the selected folder.</p>
+            <button onclick="writeSingleFile()" id="singleBtn" disabled>Write Single File</button>
+            <div id="status2" class="status" style="display: none;"></div>
+        </div>
+
+        <div class="test-section" id="test3">
+            <h3>Test 3: Multiple File Write (5 files)</h3>
+            <p>Saves 5 simple HTML files to test batch operations.</p>
+            <button onclick="writeMultipleFiles(5)" id="multipleBtn" disabled>Write 5 Files</button>
+            <div id="status3" class="status" style="display: none;"></div>
+            <div class="progress" id="progress3">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill3"></div>
+                </div>
+                <div id="progressText3">Preparing...</div>
+            </div>
+        </div>
+
+        <div class="test-section" id="test4">
+            <h3>Test 4: Complex HTML Files (10 files)</h3>
+            <p>Saves 10 complex HTML files similar to your email templates.</p>
+            <button onclick="writeComplexFiles(10)" id="complexBtn" disabled>Write 10 Complex Files</button>
+            <div id="status4" class="status" style="display: none;"></div>
+            <div class="progress" id="progress4">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill4"></div>
+                </div>
+                <div id="progressText4">Preparing...</div>
+            </div>
+        </div>
+
+        <div class="test-section" id="test5">
+            <h3>Test 5: Large Batch (50 files)</h3>
+            <p>Saves 50 files to test if large batches work where ZIP failed.</p>
+            <button onclick="writeMultipleFiles(50)" id="largeBtn" disabled>Write 50 Files</button>
+            <div id="status5" class="status" style="display: none;"></div>
+            <div class="progress" id="progress5">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill5"></div>
+                </div>
+                <div id="progressText5">Preparing...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let directoryHandle = null;
+        let isSupported = false;
+
+        // Check API support on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            checkAPISupport();
+        });
+
+        function checkAPISupport() {
+            const statusDiv = document.getElementById('featureStatus');
+            
+            if ('showDirectoryPicker' in window) {
+                isSupported = true;
+                statusDiv.innerHTML = '<span style="color: #155724;">✓ File System Access API is available in this browser</span>';
+                document.querySelectorAll('.test-section').forEach(section => {
+                    section.classList.add('supported');
+                });
+            } else {
+                isSupported = false;
+                statusDiv.innerHTML = '<span style="color: #721c24;">✗ File System Access API is NOT available in this browser</span><br><small>This API only works in Chrome/Edge browsers</small>';
+                document.querySelectorAll('.test-section').forEach(section => {
+                    section.classList.add('not-supported');
+                });
+                
+                // Disable all buttons
+                document.querySelectorAll('button').forEach(btn => {
+                    if (btn.id !== 'selectBtn') {
+                        btn.disabled = true;
+                    }
+                });
+                document.getElementById('selectBtn').disabled = true;
+            }
+        }
+
+        async function selectFolder() {
+            if (!isSupported) {
+                showStatus('status1', 'API not supported in this browser', 'error');
+                return;
+            }
+
+            try {
+                showStatus('status1', 'Opening folder selection dialog...', 'warning');
+                
+                directoryHandle = await window.showDirectoryPicker({
+                    mode: 'readwrite'
+                });
+                
+                showStatus('status1', `Folder selected successfully: ${directoryHandle.name}`, 'success');
+                document.getElementById('folderInfo').style.display = 'block';
+                document.getElementById('folderPath').textContent = directoryHandle.name;
+                
+                // Enable other test buttons
+                document.getElementById('singleBtn').disabled = false;
+                document.getElementById('multipleBtn').disabled = false;
+                document.getElementById('complexBtn').disabled = false;
+                document.getElementById('largeBtn').disabled = false;
+                
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    showStatus('status1', 'Folder selection was cancelled', 'warning');
+                } else {
+                    console.error('Error selecting folder:', error);
+                    showStatus('status1', `Error selecting folder: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        async function writeSingleFile() {
+            if (!directoryHandle) {
+                showStatus('status2', 'Please select a folder first', 'error');
+                return;
+            }
+
+            try {
+                showStatus('status2', 'Writing single file...', 'warning');
+                
+                const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test File</title>
+</head>
+<body>
+    <h1>File System Access API Test</h1>
+    <p>This file was created directly in your selected folder using the File System Access API!</p>
+    <p>Created at: ${new Date().toISOString()}</p>
+</body>
+</html>`;
+
+                const fileHandle = await directoryHandle.getFileHandle('filesystem_test_single.html', { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(htmlContent);
+                await writable.close();
+                
+                showStatus('status2', 'Single file written successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error writing single file:', error);
+                showStatus('status2', `Error writing file: ${error.message}`, 'error');
+            }
+        }
+
+        async function writeMultipleFiles(count) {
+            if (!directoryHandle) {
+                const statusId = count === 5 ? 'status3' : 'status5';
+                showStatus(statusId, 'Please select a folder first', 'error');
+                return;
+            }
+
+            const statusId = count === 5 ? 'status3' : 'status5';
+            const progressId = count === 5 ? 'progress3' : 'progress5';
+            const progressFillId = count === 5 ? 'progressFill3' : 'progressFill5';
+            const progressTextId = count === 5 ? 'progressText3' : 'progressText5';
+
+            try {
+                showStatus(statusId, `Writing ${count} files...`, 'warning');
+                showProgress(progressId);
+                
+                for (let i = 1; i <= count; i++) {
+                    const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test File ${i}</title>
+</head>
+<body>
+    <h1>Test File ${i} of ${count}</h1>
+    <p>This file was created using the File System Access API!</p>
+    <p>File number: ${i}</p>
+    <p>Created at: ${new Date().toISOString()}</p>
+</body>
+</html>`;
+
+                    const filename = `filesystem_test_${i.toString().padStart(3, '0')}.html`;
+                    const fileHandle = await directoryHandle.getFileHandle(filename, { create: true });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(htmlContent);
+                    await writable.close();
+                    
+                    updateProgress(progressFillId, progressTextId, i, count);
+                    
+                    // Small delay to prevent browser freeze and show progress
+                    if (i % 5 === 0) {
+                        await new Promise(resolve => setTimeout(resolve, 10));
+                    }
+                }
+                
+                hideProgress(progressId);
+                showStatus(statusId, `Successfully wrote ${count} files!`, 'success');
+                
+            } catch (error) {
+                console.error(`Error writing ${count} files:`, error);
+                hideProgress(progressId);
+                showStatus(statusId, `Error writing files: ${error.message}`, 'error');
+            }
+        }
+
+        async function writeComplexFiles(count) {
+            if (!directoryHandle) {
+                showStatus('status4', 'Please select a folder first', 'error');
+                return;
+            }
+
+            try {
+                showStatus('status4', `Writing ${count} complex files...`, 'warning');
+                showProgress('progress4');
+                
+                for (let i = 1; i <= count; i++) {
+                    const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complex Test File ${i}</title>
+    <style>
+        body { 
+            font-family: Georgia, serif; 
+            margin: 0; 
+            padding: 20px; 
+            background-color: #f5f5f5; 
+            line-height: 1.6;
+        }
+        .container { 
+            max-width: 660px; 
+            margin: 0 auto; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header { 
+            background-color: #000562; 
+            color: white; 
+            padding: 20px; 
+            text-align: center; 
+            margin: -40px -40px 30px -40px;
+            border-radius: 8px 8px 0 0;
+        }
+        .content { 
+            padding: 20px 0; 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin: 20px 0;
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 12px; 
+            text-align: left; 
+        }
+        th {
+            background-color: #f8f9fa;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Complex Email Template ${i}</h1>
+            <p>File System Access API Test</p>
+        </div>
+        <div class="content">
+            <p>This is a complex HTML file similar to your email templates, designed to test if the File System Access API can handle larger, more structured content.</p>
+            
+            <h2>Customer Information</h2>
+            <table>
+                <tr><th>Property</th><th>Value</th></tr>
+                <tr><td>File Number</td><td>${i}</td></tr>
+                <tr><td>Generated</td><td>${new Date().toISOString()}</td></tr>
+                <tr><td>Template Type</td><td>Complex HTML Email</td></tr>
+                <tr><td>File Size</td><td>~3KB</td></tr>
+                <tr><td>Status</td><td>Generated via File System Access API</td></tr>
+            </table>
+            
+            <h2>Sample Policy Information</h2>
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <p><strong>Policy Number:</strong> TEST-${i.toString().padStart(6, '0')}</p>
+                <p><strong>Product:</strong> Test Insurance Product</p>
+                <p><strong>Annual Premium:</strong> ${(Math.random() * 50000 + 10000).toFixed(0)} kr.</p>
+                <p><strong>Renewal Date:</strong> ${new Date(Date.now() + Math.random() * 365 * 24 * 60 * 60 * 1000).toDateString()}</p>
+            </div>
+            
+            <h2>Contact Information</h2>
+            <p>If you have any questions about this test file, please contact our support team.</p>
+            
+            <ul>
+                <li>Phone: +45 12 34 56 78</li>
+                <li>Email: test@example.com</li>
+                <li>Website: www.example.com</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Test File ${i} of ${count}</strong></p>
+            <p>Generated using File System Access API</p>
+            <p>This demonstrates complex HTML content creation directly in your file system</p>
+        </div>
+    </div>
+</body>
+</html>`;
+
+                    const filename = `complex_email_template_${i.toString().padStart(3, '0')}.html`;
+                    const fileHandle = await directoryHandle.getFileHandle(filename, { create: true });
+                    const writable = await fileHandle.createWritable();
+                    await writable.write(htmlContent);
+                    await writable.close();
+                    
+                    updateProgress('progressFill4', 'progressText4', i, count);
+                    
+                    // Small delay
+                    if (i % 3 === 0) {
+                        await new Promise(resolve => setTimeout(resolve, 10));
+                    }
+                }
+                
+                hideProgress('progress4');
+                showStatus('status4', `Successfully wrote ${count} complex files!`, 'success');
+                
+            } catch (error) {
+                console.error(`Error writing complex files:`, error);
+                hideProgress('progress4');
+                showStatus('status4', `Error writing complex files: ${error.message}`, 'error');
+            }
+        }
+
+        function showStatus(elementId, message, type) {
+            const statusDiv = document.getElementById(elementId);
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+        }
+
+        function showProgress(progressId) {
+            document.getElementById(progressId).style.display = 'block';
+        }
+
+        function hideProgress(progressId) {
+            document.getElementById(progressId).style.display = 'none';
+        }
+
+        function updateProgress(fillId, textId, current, total) {
+            const percentage = (current / total) * 100;
+            document.getElementById(fillId).style.width = percentage + '%';
+            document.getElementById(textId).textContent = `Creating file ${current} of ${total}`;
+        }
+    </script>
+</body>
+</html>

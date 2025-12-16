@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Email Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="sent-emails.js"></script>
+</head>
+<body class="bg-gray-200">
+    <!-- Left Sidebar -->
+    <div class="fixed left-0 top-0 h-full w-1/5 bg-white shadow-lg border-r border-gray-200 overflow-y-auto">
+        <div class="p-4">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Allerede Sendt</h3>
+            <div id="sentEmailsList" class="space-y-1">
+                <!-- CVR/CPR numbers will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-[20%] p-8">
+        <div class="max-w-4xl mx-auto">
+            <h1 class="text-3xl font-bold mb-8 text-gray-900">Bulk Email Generator</h1>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <!-- Upload JSON -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload JSON fil</label>
+                    <input type="file" id="jsonFile" accept=".json" class="block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-md file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-gray-900 file:text-white
+                        hover:file:bg-gray-800
+                        cursor-pointer">
+                    <span id="jsonLabel" class="mt-1 text-sm text-gray-500"></span>
+                </div>
+
+                <!-- Filters -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Filtre</h3>
+                    
+                    <!-- Migration Filter -->
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="migrationFilter" class="h-4 w-4 text-gray-900 focus:ring-gray-900 border-gray-300 rounded">
+                        <label for="migrationFilter" class="ml-2 block text-sm text-gray-700">
+                            Inkluder kun kunder med migrerede policer (MIG PROD)
+                        </label>
+                    </div>
+
+                    <!-- Exclude Already Sent Filter -->
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="excludeSentFilter" class="h-4 w-4 text-gray-900 focus:ring-gray-900 border-gray-300 rounded">
+                        <label for="excludeSentFilter" class="ml-2 block text-sm text-gray-700">
+                            Ekskluder emails fra "allerede sendt" liste
+                        </label>
+                    </div>
+
+                    <!-- Exclude No Email Filter -->
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="excludeNoEmailFilter" class="h-4 w-4 text-gray-900 focus:ring-gray-900 border-gray-300 rounded">
+                        <label for="excludeNoEmailFilter" class="ml-2 block text-sm text-gray-700">
+                            Ekskluder kunder uden email adresse
+                        </label>
+                    </div>
+
+                    <!-- Include JS List Filter -->
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="includeJsListFilter" class="h-4 w-4 text-gray-900 focus:ring-gray-900 border-gray-300 rounded">
+                        <label for="includeJsListFilter" class="ml-2 block text-sm text-gray-700">
+                            Inkluder JS liste med genererede cvr numre
+                        </label>
+                    </div>
+
+                    <!-- Marketing Consent Filter -->
+                    <div class="mb-4">
+                        <label for="marketingConsentFilter" class="block text-sm font-medium text-gray-700 mb-2">
+                            Markedsføringssamtykke
+                        </label>
+                        <select id="marketingConsentFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-gray-900">
+                            <option value="alle">Alle</option>
+                            <option value="med">Med markedsføringssamtykke</option>
+                            <option value="uden">Uden markedsføringssamtykke</option>
+                        </select>
+                    </div>
+
+                    <!-- Limit Number of Emails -->
+                    <div class="mb-4">
+                        <label for="emailLimitInput" class="block text-sm font-medium text-gray-700 mb-2">
+                            Antal e-mails
+                        </label>
+                        <input type="number" id="emailLimitInput" placeholder="Lad stå tom for alle" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900">
+                    </div>
+
+                </div>
+
+                <!-- Statistics -->
+                <div id="statistics" class="mb-6 p-4 bg-gray-50 rounded-md hidden">
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">Statistik</h4>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-600">Totalt kunder:</span>
+                            <span id="totalCustomers" class="font-medium">0</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Filtrerede kunder:</span>
+                            <span id="filteredCustomers" class="font-medium">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generate Button -->
+                <button id="generateButton" disabled 
+                    class="w-full bg-gray-900 text-white px-4 py-2 rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    Gem Alle Emails til Mappe
+                </button>
+
+                <!-- Progress -->
+                <div id="progressContainer" class="mt-4 hidden">
+                    <div class="flex justify-between text-sm text-gray-600 mb-1">
+                        <span>Gemmer filer...</span>
+                        <span id="progressText">0 / 0</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        <div id="progressBar" class="bg-gray-900 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div id="progressDetails" class="text-xs text-gray-500 mt-2"></div>
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="mt-4 p-3 bg-red-100 text-red-700 rounded-md hidden"></div>
+            </div>
+
+            <!-- Single Email Testing Section -->
+            <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
+                <h2 class="text-xl font-bold mb-6 text-gray-900">Single Email Testing</h2>
+                
+                <!-- CVR Input -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">CVR Nummer</label>
+                    <input type="text" id="cvrInput" placeholder="Indtast CVR nummer" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900">
+                </div>
+
+                <!-- Generate Single Button -->
+                <button id="singleGenerateButton" disabled 
+                    class="w-full bg-gray-900 text-white px-4 py-2 rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    Generer Single Email
+                </button>
+
+                <!-- Single Error Message -->
+                <div id="singleErrorMessage" class="mt-4 p-3 bg-red-100 text-red-700 rounded-md hidden"></div>
+            </div>
+        </div>
+    </div>
+    <script src="images.js"></script>
+    <script src="bulk-email-generator.js"></script>
+</body>
+</html>

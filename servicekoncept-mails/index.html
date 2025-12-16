@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Værktøj</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Main Content -->
+    <div class="ml-64 p-8">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-3xl font-bold mb-8 text-gray-900">Servicekoncept JSON Værktøj</h1>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Upload Card -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-semibold mb-6 text-gray-900">Upload Filer</h2>
+                    
+                    <div class="space-y-6">
+                        <!-- AXA Upload -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">AXA Data</label>
+                            <p class="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                                Upload forsikringspolicer fra AXA IBSuite. De hentes under 'Rapportering' -> 'Fuld police rapport'. 
+                                Klik 'kør' og gem som Excel fil.
+                            </p>
+                            <input type="file" id="fileAXA" accept=".xlsx,.xls" class="block w-full text-sm text-gray-500
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-md file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-gray-900 file:text-white
+                                hover:file:bg-gray-800
+                                cursor-pointer">
+                            <span id="labelAXA" class="mt-1 text-sm text-gray-500"></span>
+                        </div>
+
+                        <!-- Nærsikring Upload -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Nærsikring Data</label>
+                            <p class="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                                Upload forsikringspolicer fra Nærsikring. Findes i vidensbanken i teams. Excel format.
+                            </p>
+                            <input type="file" id="fileN" accept=".xlsx,.xls" class="block w-full text-sm text-gray-500
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-md file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-gray-900 file:text-white
+                                hover:file:bg-gray-800
+                                cursor-pointer">
+                            <span id="labelN" class="mt-1 text-sm text-gray-500"></span>
+                        </div>
+
+                        <!-- Kunde Data Upload -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Kunde Data</label>
+                            <p class="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                                Upload kundedata fra AXA IBSuite. De hentes under 'Generel' -> 'Kunder'. 
+                                Scroll helt til højre og klik på Excel logo øverst til højre.
+                            </p>
+                            <input type="file" id="fileK" accept=".xlsx,.xls" class="block w-full text-sm text-gray-500
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-md file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-gray-900 file:text-white
+                                hover:file:bg-gray-800
+                                cursor-pointer">
+                            <span id="labelK" class="mt-1 text-sm text-gray-500"></span>
+                        </div>
+
+                        <!-- Ulykke/Sundheds Data Upload -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Ulykke/Sundhedsforsikring Data</label>
+                            <p class="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                                <span class="font-medium">Valgfri:</span> Upload data for ulykke- og sundhedsforsikringer. 
+                                Kun nyeste policer (2025) inkluderes.
+                            </p>
+                            <input type="file" id="fileUlykke" accept=".xlsx,.xls" class="block w-full text-sm text-gray-500
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-md file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-gray-900 file:text-white
+                                hover:file:bg-gray-800
+                                cursor-pointer">
+                            <span id="labelUlykke" class="mt-1 text-sm text-gray-500"></span>
+                        </div>
+
+                        <!-- Marketing Consent Data Upload -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700">Marketing Consent Data</label>
+                            <p class="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                                <span class="font-medium">Valgfri:</span> Upload marketing consent data. 
+                                Excel format med CRN og MARKETING kolonner.
+                            </p>
+                            <input type="file" id="fileMarketing" accept=".xlsx,.xls" class="block w-full text-sm text-gray-500
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-md file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-gray-900 file:text-white
+                                hover:file:bg-gray-800
+                                cursor-pointer">
+                            <span id="labelMarketing" class="mt-1 text-sm text-gray-500"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions Card -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-xl font-semibold mb-6 text-gray-900">Funktioner</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="flex flex-col space-y-3">
+                            <button id="processButton" disabled class="w-full bg-gray-900 text-white px-4 py-2 rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                Processér Data
+                            </button>
+                            <button id="downloadButton" disabled class="w-full bg-gray-900 text-white px-4 py-2 rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                Download Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
