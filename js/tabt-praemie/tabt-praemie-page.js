@@ -212,6 +212,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 id: generateUniqueId(),
                 db25_kode: document.getElementById('db25_kode').value.trim(),
                 db25_beskrivelse: document.getElementById('db25_beskrivelse').value.trim(),
+                cvr_nummer: document.getElementById('cvr_nummer').value.trim(),
                 erhverv: document.getElementById('erhverv').value.trim(),
                 praemie_kr: parseFloat(document.getElementById('praemie_kr').value),
                 aarsag: document.getElementById('aarsag').value,
@@ -302,6 +303,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     <td class="py-3 px-6 text-slate-700 whitespace-nowrap">${date}</td>
                     <td class="py-3 px-6 text-slate-700">${escapeHtml(record.db25_kode)}</td>
                     <td class="py-3 px-6 text-slate-700 text-sm">${escapeHtml(record.db25_beskrivelse || '-')}</td>
+                    <td class="py-3 px-6 text-slate-700 whitespace-nowrap">${escapeHtml(record.cvr_nummer || '-')}</td>
                     <td class="py-3 px-6 text-slate-700">${escapeHtml(record.erhverv)}</td>
                     <td class="text-right py-3 px-6 text-slate-700 font-medium whitespace-nowrap">${praemie}</td>
                     <td class="py-3 px-6 text-slate-700">${escapeHtml(record.aarsag)}</td>
@@ -428,6 +430,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 'Dato': formatDateForExcel(record.created_at),
                 'DB25 Kode': record.db25_kode,
                 'Branchebeskrivelse': record.db25_beskrivelse || '',
+                'CVR': record.cvr_nummer || '',
                 'Erhverv': record.erhverv,
                 'Præmie (kr)': record.praemie_kr,
                 'Årsag': record.aarsag,
@@ -444,6 +447,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 { wch: 18 }, // Dato
                 { wch: 12 }, // DB25 Kode
                 { wch: 50 }, // Branchebeskrivelse
+                { wch: 12 }, // CVR
                 { wch: 30 }, // Erhverv
                 { wch: 12 }, // Præmie
                 { wch: 20 }, // Årsag
@@ -529,6 +533,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         document.getElementById('editDb25Input').value = `${record.db25_kode} - ${record.db25_beskrivelse}`;
         document.getElementById('editDb25Kode').value = record.db25_kode;
         document.getElementById('editDb25Beskrivelse').value = record.db25_beskrivelse;
+        document.getElementById('editCvrNummer').value = record.cvr_nummer || '';
         document.getElementById('editErhverv').value = record.erhverv;
         document.getElementById('editPraemie').value = record.praemie_kr;
         document.getElementById('editAarsag').value = record.aarsag;
@@ -689,6 +694,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 ...existingRecord, // Keep original metadata
                 db25_kode: document.getElementById('editDb25Kode').value.trim(),
                 db25_beskrivelse: document.getElementById('editDb25Beskrivelse').value.trim(),
+                cvr_nummer: document.getElementById('editCvrNummer').value.trim(),
                 erhverv: document.getElementById('editErhverv').value.trim(),
                 praemie_kr: parseFloat(document.getElementById('editPraemie').value),
                 aarsag: document.getElementById('editAarsag').value,
